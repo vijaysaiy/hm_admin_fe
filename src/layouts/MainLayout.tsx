@@ -137,14 +137,7 @@ const DashboardLayout = () => {
           </DropdownMenu>
         </header>
 
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-          <div
-            className="flex flex-1 items-center justify-center rounded-md border shadow-sd"
-            x-chunk="dashboard-02-chunk-1"
-          >
-            <Outlet />
-          </div>
-        </main>
+        <Outlet />
       </div>
     </div>
   );
