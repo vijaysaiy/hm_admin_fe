@@ -1,0 +1,38 @@
+14/08/2024
+1. 2 new modules(medications and ailments - crud operations)
+2. login api integration
+3. patientList
+4. appointmentlist with appointment status filter
+5. appointment details page
+6. in appointment details cancel cta, confirm cta(should open up a modal for foctor remarks) and add prescription cta
+7. for ailment list dont allow user to delete or edit id isDefault id true
+
+
+pending - dashboard metrics api, user creation, user details api, patient details api
+
+
+
+medication dosage form enums
+  Tablet
+  Capsule
+  Powder
+  Ointment
+  Cream
+  Gel
+  Syrup
+  Pastes
+  Granules
+  Pellets
+  Lozenges
+  Elixirs
+  Tinctures
+  Liniments
+  Others
+
+enum foodRelationEnum {
+  BEFORE_MEAL
+  AFTER_MEAL
+  WITH_MEAL
+}
+
+MORNING, AFTERNOON, EVENING, NIGHT
