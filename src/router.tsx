@@ -1,47 +1,68 @@
 import HomePage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import { createBrowserRouter } from "react-router-dom";
+import { APP_ROUTES } from "./appRoutes";
 import AuthLayout from "./layouts/AuthLayout";
+import ErrorBoundary from "./layouts/ErrorBoundary";
 import MainLayout from "./layouts/MainLayout";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import DoctorsPage from "./pages/DoctorsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import PatientsPage from "./pages/PatientsPage";
 import RegisterPage from "./pages/RegisterPage";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <MainLayout />,
+    path: "/admin",
+    element: (
+      <ErrorBoundary>
+        <MainLayout />
+      </ErrorBoundary>
+    ),
     children: [
       {
-        path: "dashboard",
+        path: APP_ROUTES.DASHBOARD,
         element: <HomePage />,
       },
       {
-        path: "patients",
+        path: APP_ROUTES.PATIENTS,
         element: <PatientsPage />,
       },
       {
-        path: "doctors",
+        path: APP_ROUTES.USERS,
         element: <DoctorsPage />,
       },
       {
-        path: "appointments",
+        path: APP_ROUTES.APPOINTMENTS,
         element: <AppointmentsPage />,
+      },
+      /* 404 page */
+      {
+        path: "*",
+        element: <NotFoundPage />,
       },
     ],
   },
   {
-    path: "/auth",
-    element: <AuthLayout />,
+    path: "/",
+    element: (
+      <ErrorBoundary>
+        <AuthLayout />
+      </ErrorBoundary>
+    ),
     children: [
       {
-        path: "login",
+        path: APP_ROUTES.LOGIN,
         element: <LoginPage />,
       },
       {
-        path: "register",
+        path: APP_ROUTES.REGISTER,
         element: <RegisterPage />,
+      },
+      /* 404 page */
+      {
+        path: "*",
+        element: <NotFoundPage />,
       },
     ],
   },

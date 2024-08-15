@@ -1,3 +1,5 @@
+import { APP_ROUTES } from "@/appRoutes";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,17 +10,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { clearUser } from "@/state/userReducer";
+import { UserState } from "@/types";
 import {
-  Bell,
   CalendarPlus2,
-  CircleUser,
   LayoutDashboard,
   Menu,
   Package2,
   Stethoscope,
+  UserIcon,
   Users,
 } from "lucide-react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const navItemIconClass = "h-4 w-4";
 
@@ -33,27 +37,40 @@ const navItems = [
   {
     label: "Dashboard",
     icon: <LayoutDashboard className={navItemIconClass} />,
-    link: "/dashboard",
+    link: APP_ROUTES.DASHBOARD,
   },
   {
     label: "Patients",
     icon: <Users className={navItemIconClass} />,
-    link: "/patients",
+    link: APP_ROUTES.PATIENTS,
   },
   {
-    label: "Doctors",
+    label: "Users",
     icon: <Stethoscope className={navItemIconClass} />,
-    link: "/doctors",
+    link: APP_ROUTES.USERS,
   },
   {
     label: "Appointments",
     icon: <CalendarPlus2 className={navItemIconClass} />,
-    link: "/appointments",
+    link: APP_ROUTES.APPOINTMENTS,
+  },
+  {
+    label: "Medicines",
+    icon: <Stethoscope className={navItemIconClass} />,
+    link: APP_ROUTES.MEDICATION,
+  },
+  {
+    label: "Ailments",
+    icon: <CalendarPlus2 className={navItemIconClass} />,
+    link: APP_ROUTES.AILMENTS,
   },
 ];
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state: { user: UserState }) => state.user.user);
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -63,10 +80,6 @@ const DashboardLayout = () => {
               <Package2 className="h-6 w-6" />
               <span className="">HMS Admin</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -122,17 +135,34 @@ const DashboardLayout = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
+                <Avatar className="w-10 h-10">
+                  <AvatarImage
+                    src={user?.signedUrl}
+                    alt="image"
+                    className="object-fit "
+                  />
+                  <AvatarFallback className="hover:cursor-pointer">
+                    <UserIcon className="w-12 h-12" />
+                  </AvatarFallback>
+                </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(APP_ROUTES.PROFILE)}>
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  dispatch(clearUser());
+                  navigate(APP_ROUTES.LOGIN);
+                }}
+              >
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
