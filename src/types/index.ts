@@ -21,6 +21,96 @@ export interface IAppointmentState {
   weekdays: IWeekday[] | null;
 }
 
+export interface ICreateMedicationForm {
+  medicationName: string;
+  code: string;
+  description: string;
+  manufacturer: string;
+  expirationDate: string | Date; // ISO 8601 date string
+  dosageForm:
+    | "Tablet"
+    | "Capsule"
+    | "Syrup"
+    | "Powder"
+    | "Ointment"
+    | "Cream"
+    | "Gel"
+    | "Pastes"
+    | "Granules"
+    | "Pellets"
+    | "Lozenges"
+    | "Elixirs"
+    | "Tinctures"
+    | "Liniments"
+    | "Others";
+  medicationDosage: string;
+  hospitalId?: string;
+}
+
+export interface Ailment {
+  id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  name: string;
+  description?: string | null;
+  isActive?: boolean;
+  isDefault?: boolean;
+  isDeleted?: boolean;
+  hospitalId?: string;
+}
+
+export interface Patient {
+  name: string;
+  id: string;
+  phoneNumber: string;
+  gender: string;
+  dateOfBirth: string;
+  bloodGroup: string;
+  isd_code: string;
+  email: string;
+}
+
+export interface PatientRecord {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  hospitalId: string;
+  patientId: string;
+  patient: Patient;
+}
+
+interface DoctorSlots {
+  doctorId: string;
+  weekDaysId: string;
+  id: string;
+  slot: {
+    id: string;
+    startTime: string;
+    endTime: string;
+    hospitalId: string;
+  };
+}
+export interface Appointment {
+  id: string;
+  appointmentDate: string;
+  appointmentStatus: string;
+  doctor: {
+    id: string;
+    name: string;
+    speciality: string;
+    profilePictureUrl: string;
+  };
+  patient: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    isd_code: string;
+  };
+  ailment: Ailment;
+  doctorSlots: DoctorSlots;
+}
+
 // app types
 export interface User {
   id: string;
@@ -64,7 +154,7 @@ export interface IAppointmentForm {
   remarks: string;
   ailmentId: string;
   appointmentDate: string;
-  documents?:IMedicalReport[];
+  documents?: IMedicalReport[];
 }
 
 export interface IloginForm {
@@ -226,8 +316,7 @@ export interface IUpdateAppointmentDetails {
     id: string;
     bucketPath: string;
   }[];
-  documents?:IMedicalReport[];
- 
+  documents?: IMedicalReport[];
 }
 
 export interface IUpdateUserProfile {

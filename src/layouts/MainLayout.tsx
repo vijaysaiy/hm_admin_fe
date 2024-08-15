@@ -13,10 +13,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { clearUser } from "@/state/userReducer";
 import { UserState } from "@/types";
 import {
+  Biohazard,
   CalendarPlus2,
   LayoutDashboard,
   Menu,
   Package2,
+  PillBottle,
   Stethoscope,
   UserIcon,
   Users,
@@ -27,10 +29,10 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 const navItemIconClass = "h-4 w-4";
 
 const linkToTitle = {
-  "/dashboard": "Dashboard",
-  "/patients": "Patients",
-  "/doctors": "Doctors",
-  "/appointments": "Appointments",
+  [APP_ROUTES.DASHBOARD]: "Dashboard",
+  [APP_ROUTES.PATIENTS]: "Patients",
+  [APP_ROUTES.USERS]: "Users",
+  [APP_ROUTES.APPOINTMENTS]: "Appointments",
 };
 
 const navItems = [
@@ -56,12 +58,12 @@ const navItems = [
   },
   {
     label: "Medicines",
-    icon: <Stethoscope className={navItemIconClass} />,
+    icon: <PillBottle className={navItemIconClass} />,
     link: APP_ROUTES.MEDICATION,
   },
   {
     label: "Ailments",
-    icon: <CalendarPlus2 className={navItemIconClass} />,
+    icon: <Biohazard className={navItemIconClass} />,
     link: APP_ROUTES.AILMENTS,
   },
 ];
@@ -87,7 +89,7 @@ const DashboardLayout = () => {
                 <Link
                   to={item.link}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
-                    item.link === location.pathname
+                    location.pathname.includes(item.link)
                       ? "bg-gray-200"
                       : "text-muted-foreground"
                   }`}
@@ -128,7 +130,7 @@ const DashboardLayout = () => {
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            <h1 className="text-lg font-semibold md:text-2xl">
+            <h1 className="text-lg font-semibold md:text-2xl" id="header-title">
               {linkToTitle[location.pathname as keyof typeof linkToTitle]}
             </h1>
           </div>

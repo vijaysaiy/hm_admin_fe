@@ -1,8 +1,4 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import CustomTooltip from "@/components/ui/custom-tooltip";
-import DatePicker from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -15,16 +11,68 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { File, RefreshCw, Search, X } from "lucide-react";
+import { PatientRecord } from "@/types";
+import { format } from "date-fns";
+import { Search } from "lucide-react";
 import { useState } from "react";
 
+const patientList: PatientRecord[] = [
+  {
+    id: "clzi2kmpg000672al8y1q3qza",
+    createdAt: "2024-08-06T06:59:00.724Z",
+    updatedAt: "2024-08-06T06:59:00.724Z",
+    hospitalId: "clz8bfjq800009cxohb5i0s11",
+    patientId: "clz8bwlz9002w9cxocxqzkwik",
+    patient: {
+      name: "Vijaysai",
+      id: "clz8bwlz9002w9cxocxqzkwik",
+      phoneNumber: "+911234567890",
+      gender: "OTHERS",
+      dateOfBirth: "2024-07-29T18:26:09.497Z",
+      bloodGroup: "A+",
+      isd_code: "+91",
+      email: "test@gmail.com",
+    },
+  },
+  {
+    id: "clzi2kmpg000672al8y1q3qzb",
+    createdAt: "2024-08-07T06:59:00.724Z",
+    updatedAt: "2024-08-07T06:59:00.724Z",
+    hospitalId: "clz8bfjq800009cxohb5i0s12",
+    patientId: "clz8bwlz9002w9cxocxqzkwil",
+    patient: {
+      name: "John Doe",
+      id: "clz8bwlz9002w9cxocxqzkwil",
+      phoneNumber: "+911234567891",
+      gender: "MALE",
+      dateOfBirth: "2024-07-30T18:26:09.497Z",
+      bloodGroup: "B+",
+      isd_code: "+91",
+      email: "john.doe@gmail.com",
+    },
+  },
+  {
+    id: "clzi2kmpg000672al8y1q3qzc",
+    createdAt: "2024-08-08T06:59:00.724Z",
+    updatedAt: "2024-08-08T06:59:00.724Z",
+    hospitalId: "clz8bfjq800009cxohb5i0s13",
+    patientId: "clz8bwlz9002w9cxocxqzkwim",
+    patient: {
+      name: "Jane Smith",
+      id: "clz8bwlz9002w9cxocxqzkwim",
+      phoneNumber: "+911234567892",
+      gender: "FEMALE",
+      dateOfBirth: "2024-07-31T18:26:09.497Z",
+      bloodGroup: "O+",
+      isd_code: "+91",
+      email: "jane.smith@gmail.com",
+    },
+  },
+];
 const PatientsPage = () => {
-  const [date, setDate] = useState<Date | undefined>();
-  const [selectedTab, setSelectedTab] = useState<string>("new");
   const [noOfPages, setNoOfPages] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   return (
@@ -41,72 +89,34 @@ const PatientsPage = () => {
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 />
               </div>
-              <DatePicker
-                date={date}
-                setDate={setDate}
-                placeholder="Filter by date"
-              />
             </div>
-              <Button size="sm" variant="outline" className="h-7 gap-1">
-                <File className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Export
-                </span>
-              </Button>
           </div>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Patient</TableHead>
-                <TableHead>Patient Age</TableHead>
-                <TableHead>Doctor</TableHead>
-                <TableHead className="hidden md:table-cell">
-                  Date & Time
-                </TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+              <TableRow className="font-medium">
+                <TableCell>Patient Name</TableCell>
+                <TableCell>Phone Number</TableCell>
+                <TableCell>Gender</TableCell>
+                <TableCell>Date of Birth</TableCell>
+                <TableCell>Blood Group</TableCell>
+                <TableCell>Email</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">
-                  <div className="font-medium">Liam Johnson</div>
-                  <div className="hidden text-sm text-muted-foreground md:inline">
-                    liam@example.com
-                  </div>
-                </TableCell>
-                <TableCell>32</TableCell>
-                <TableCell>
-                  <div className="font-medium">Liam Johnson</div>
-                  <div className="hidden text-sm text-muted-foreground md:inline">
-                    liam@example.com
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  2023-07-12 10:42 AM
-                </TableCell>
-                <TableCell>
-                  {selectedTab === "new" ? (
-                    <>
-                      <CustomTooltip content="Reschedule">
-                        <Button size="icon" variant="ghost">
-                          <RefreshCw className="mr-1" />
-                          <span className="sr-only">Reschedule</span>
-                        </Button>
-                      </CustomTooltip>
-                      <CustomTooltip content="Cancel">
-                        <Button size="icon" variant="ghost">
-                          <X className="mr-1" />
-                          <span className="sr-only ">Cancel</span>
-                        </Button>
-                      </CustomTooltip>
-                    </>
-                  ) : (
-                    <Badge variant={"success"}>Completed</Badge>
-                  )}
-                </TableCell>
-              </TableRow>
+              {patientList.map((record) => (
+                <TableRow key={record.id}>
+                  <TableCell>{record.patient.name}</TableCell>
+                  <TableCell>{record.patient.phoneNumber}</TableCell>
+                  <TableCell className="capitalize">
+                    {record.patient.gender.toLowerCase()}
+                  </TableCell>
+                  <TableCell>
+                    {format(record.patient.dateOfBirth, "PP")}
+                  </TableCell>
+                  <TableCell>{record.patient.bloodGroup}</TableCell>
+                  <TableCell>{record.patient.email}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
           <Pagination className="mt-8">
@@ -150,7 +160,7 @@ const PatientsPage = () => {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-10</strong> of <strong>32</strong> products
+            Showing <strong>1-10</strong> of <strong>32</strong> patients
           </div>
         </CardFooter>
       </Card>
