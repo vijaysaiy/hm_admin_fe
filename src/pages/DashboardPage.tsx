@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link } from "react-router-dom";
+import { APP_ROUTES } from "@/appRoutes";
 
 const DashboardPage = () => {
   return (
@@ -90,8 +91,8 @@ const DashboardPage = () => {
                 Recent appointments from your hospital.
               </CardDescription>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1">
-              <Link to="/appointments">
+            <Button asChild size="sm" className="ml-auto gap-1" variant="link">
+              <Link to={APP_ROUTES.APPOINTMENTS}>
                 View All
                 <ArrowUpRight className="h-4 w-4" />
               </Link>

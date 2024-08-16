@@ -23,6 +23,7 @@ import {
   UserIcon,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,6 +34,8 @@ const linkToTitle = {
   [APP_ROUTES.PATIENTS]: "Patients",
   [APP_ROUTES.USERS]: "Users",
   [APP_ROUTES.APPOINTMENTS]: "Appointments",
+  [APP_ROUTES.MEDICATION]: "Medicines",
+  [APP_ROUTES.AILMENTS]: "Ailments",
 };
 
 const navItems = [
@@ -69,10 +72,12 @@ const navItems = [
 ];
 
 const DashboardLayout = () => {
+  const [openSidebar, setOpenSidebar] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: { user: UserState }) => state.user.user);
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -104,7 +109,7 @@ const DashboardLayout = () => {
       </div>
       <div className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          <Sheet>
+          <Sheet onOpenChange={setOpenSidebar} open={openSidebar}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
@@ -115,12 +120,17 @@ const DashboardLayout = () => {
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
+            <SheetContent side="left" className="flex flex-col w-[260px]">
               <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                 {navItems.map((item) => (
                   <Link
                     to={item.link}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary "
+                    onClick={() => setOpenSidebar(false)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
+                      location.pathname.includes(item.link)
+                        ? "bg-gray-200"
+                        : "text-muted-foreground"
+                    }`}
                   >
                     {item.icon}
                     {item.label}

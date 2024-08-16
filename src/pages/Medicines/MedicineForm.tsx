@@ -29,9 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import useWindowSize from "@/hooks/useWindowSize";
+import { createMedicine, updateMedicine } from "@/https/admin-service";
 import { ICreateMedicationForm } from "@/types";
+import { dirtyValues } from "@/utils";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { dosageForms, medicationSchema } from "./schema";
 
 const MedicineForm = ({
@@ -39,16 +44,20 @@ const MedicineForm = ({
   setShowCreateMedicine,
   selectedMedicine,
   mode,
+  setMode,
 }: {
   showCreateMedicine: boolean;
   setShowCreateMedicine: Dispatch<SetStateAction<boolean>>;
   selectedMedicine: ICreateMedicationForm | null;
   mode: "view" | "edit" | "create";
+  setMode: Dispatch<SetStateAction<"view" | "edit" | "create" | null>>;
 }) => {
-  const size = useWindowSize();
-  const side = size.width && size.width <= 768 ? "bottom" : "right";
   const [isEditMode, setIsEditMode] = useState(mode === "edit");
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
+  const size = useWindowSize();
+  const handleError = useErrorHandler();
+  const side = size.width && size.width <= 768 ? "bottom" : "right";
   const form = useForm<ICreateMedicationForm>({
     resolver: zodResolver(medicationSchema),
     defaultValues:
@@ -60,14 +69,36 @@ const MedicineForm = ({
       } || {},
   });
 
-  const onSubmit: SubmitHandler<ICreateMedicationForm> = (
+  const onSubmit: SubmitHandler<ICreateMedicationForm> = async (
     data: ICreateMedicationForm
   ) => {
-    const payload = {
-      ...data,
-      expirationDate: data.expirationDate.toString(),
-    };
-    console.log(payload);
+    try {
+      setSubmitting(true);
+      if (isEditMode) {
+        await onEdit();
+        toast.success("Successfully updated medicine");
+      } else {
+        const payload = {
+          ...data,
+          expirationDate: (data.expirationDate as Date).toISOString(),
+        };
+        await createMedicine(payload);
+        toast.success("Successfully created medicine");
+      }
+      handleCloseForm(false);
+    } catch (error) {
+      handleError(error, "Failed to create/update medicine");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onEdit = async () => {
+    const payload: ICreateMedicationForm = dirtyValues(
+      form.formState.dirtyFields,
+      form.getValues()
+    ) as ICreateMedicationForm;
+    return await updateMedicine(payload, selectedMedicine?.id as string);
   };
 
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
@@ -84,6 +115,7 @@ const MedicineForm = ({
     if (!isOpen) {
       form.reset();
       setIsEditMode(false);
+      setMode(null);
     }
   };
 
@@ -268,6 +300,7 @@ const MedicineForm = ({
                     }
                   >
                     {mode === "edit" || isEditMode ? "Update" : "Submit"}
+                    {submitting && <Spinner type="light" />}
                   </Button>
                 )}
               </SheetFooter>

@@ -22,10 +22,11 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
-import { login } from "@/https/auth-service";
+import { getAdminDetails, login } from "@/https/auth-service";
+import { setUser } from "@/state/userReducer";
 import { IloginForm, UserState } from "@/types";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -51,7 +52,7 @@ const LoginForm = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -77,13 +78,9 @@ const LoginForm = () => {
       const response = await login(payload);
       console.log(response.status);
       if (response.status === 200) {
-        // const [detailsRes, weekdayRes] = await Promise.all([
-        //   getUserDetails(),
-        //   getWeekdayList(),
-        // ]);
+        const detailsRes = await getAdminDetails();
 
-        // dispatch(setUser(detailsRes.data.data));
-        // dispatch(setWeekdays(weekdayRes.data.data));
+        dispatch(setUser(detailsRes.data.data));
         navigate(APP_ROUTES.DASHBOARD);
       }
       toast.success("Logged in successfully");
