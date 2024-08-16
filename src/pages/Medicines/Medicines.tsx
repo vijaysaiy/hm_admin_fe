@@ -38,6 +38,7 @@ import useErrorHandler from "@/hooks/useError";
 import { deleteMedicine, getMedicineList } from "@/https/admin-service";
 import { ICreateMedicationForm } from "@/types";
 import { format } from "date-fns";
+import debounce from "lodash.debounce";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ const Medicines = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [search, setSearch] = useState("");
   const [showCreateMedicine, setShowCreateMedicine] = useState(false);
   const [selectedMedicine, setSelectedMedicine] =
     useState<ICreateMedicationForm | null>(null);
@@ -79,6 +81,7 @@ const Medicines = () => {
       const response = await getMedicineList({
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
+        search
       });
       const data = response.data.data.medicationList;
       const totalRecords = response.data.data.meta.totalMatchingRecords;
@@ -108,10 +111,15 @@ const Medicines = () => {
     }
   };
 
+  const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  }, 900);
+
   useEffect(() => {
     formMode === null && fetchMedicineList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, rowsPerPage, formMode]);
+  }, [currentPage, rowsPerPage, formMode, search]);
 
   useEffect(() => {
     if (formMode === null) {
@@ -128,6 +136,7 @@ const Medicines = () => {
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
+                  onChange={handleSearch}
                   type="search"
                   placeholder="Search..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"

@@ -14,4 +14,6 @@ export const API_END_POINTS = {
 
   APPOINTMENT_LIST: "admin/hospital/appointment/list",
   APPOINTMENT_DETAILS: "admin/hospital/appointment/details",
+
+  PATIENTS_LIST: "admin/hospital/patients/list",
 };
