@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Ailment } from "@/types";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AilmentForm from "./AilmentForm";
 
 const ailments: Ailment[] = [
@@ -92,6 +92,12 @@ const Ailments = () => {
     setSelectedAilment(ailment);
     setFormMode(mode);
   };
+
+  useEffect(() => {
+    if (formMode === null) {
+      setSelectedAilment(null);
+    }
+  }, [formMode]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

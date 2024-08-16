@@ -6,6 +6,6 @@ export const login = async (payload: IloginForm) => {
   return api.post(API_END_POINTS.LOGIN, payload);
 };
 
-// export const getUserDetails = async () => {
-//   return api.get(API_END_POINTS.USER_DETAILS);
-// };
+export const getAdminDetails = async () => {
+  return api.get(API_END_POINTS.ADMIN_DETAILS);
+};

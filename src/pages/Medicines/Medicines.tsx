@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -15,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import Spinner from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -23,79 +34,90 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useErrorHandler from "@/hooks/useError";
+import { deleteMedicine, getMedicineList } from "@/https/admin-service";
 import { ICreateMedicationForm } from "@/types";
 import { format } from "date-fns";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import MedicineForm from "./MedicineForm";
 
-const data: ICreateMedicationForm[] = [
-  {
-    medicationName: "Coughgo 230",
-    code: "764985984",
-    description: "Coughgo 230",
-    manufacturer: "HUL",
-    expirationDate: "2024-08-05T09:46:12.110Z",
-    dosageForm: "Tablet",
-    medicationDosage: "230mgc",
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    medicationName: "PainRelief 500",
-    code: "123456789",
-    description: "PainRelief 500",
-    manufacturer: "PharmaCorp",
-    expirationDate: "2025-01-15T10:30:00.000Z",
-    dosageForm: "Capsule",
-    medicationDosage: "500mg",
-    hospitalId: "clz8bfjq800009cxohb5i0s12",
-  },
-  {
-    medicationName: "AllergyFree",
-    code: "987654321",
-    description: "AllergyFree",
-    manufacturer: "HealthPlus",
-    expirationDate: "2023-12-01T08:00:00.000Z",
-    dosageForm: "Syrup",
-    medicationDosage: "100ml",
-    hospitalId: "clz8bfjq800009cxohb5i0s13",
-  },
-  {
-    medicationName: "Antibiotic A",
-    code: "456789123",
-    description: "Antibiotic A",
-    manufacturer: "MediCare",
-    expirationDate: "2024-05-20T12:00:00.000Z",
-    dosageForm: "Tablet",
-    medicationDosage: "250mg",
-    hospitalId: "clz8bfjq800009cxohb5i0s14",
-  },
-  {
-    medicationName: "Vitamin D",
-    code: "321654987",
-    description: "Vitamin D",
-    manufacturer: "NutriLife",
-    expirationDate: "2026-07-10T14:00:00.000Z",
-    dosageForm: "Tablet",
-    medicationDosage: "1000IU",
-    hospitalId: "clz8bfjq800009cxohb5i0s15",
-  },
-];
 type mode = "view" | "edit" | "create" | null;
 
 const Medicines = () => {
   const [noOfPages, setNoOfPages] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [showCreateMedicine, setShowCreateMedicine] = useState(false);
   const [selectedMedicine, setSelectedMedicine] =
     useState<ICreateMedicationForm | null>(null);
   const [formMode, setFormMode] = useState<mode>(null);
+
+  const [medicinesList, setMedicinesList] = useState<ICreateMedicationForm[]>(
+    []
+  );
+  const [deleteMedicineId, setDeleteMedicineId] = useState<
+    string | null | undefined
+  >(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const startIndex = (currentPage - 1) * rowsPerPage + 1;
+  const endIndex = medicinesList.length + startIndex - 1;
+
+  const handleError = useErrorHandler();
 
   const handleViewOrEdit = (medicine: ICreateMedicationForm, mode: mode) => {
     setSelectedMedicine(medicine);
     setFormMode(mode);
     setShowCreateMedicine(true);
   };
+  const fetchMedicineList = async () => {
+    try {
+      setIsFetching(true);
+      const response = await getMedicineList({
+        page: currentPage.toString(),
+        limit: rowsPerPage.toString(),
+      });
+      const data = response.data.data.medicationList;
+      const totalRecords = response.data.data.meta.totalMatchingRecords;
+      setTotalRecords(totalRecords);
+      setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
+      setMedicinesList(data);
+    } catch (error) {
+      handleError(error, "Failed to fetch medicine list");
+    } finally {
+      setIsFetching(true);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleteMedicineId) {
+      try {
+        setIsDeleting(true);
+        await deleteMedicine(deleteMedicineId);
+        toast.success("Medicine deleted successfully");
+        fetchMedicineList();
+      } catch (error) {
+        handleError(error, "Failed to delete medicine");
+      } finally {
+        setIsDeleting(false);
+        setDeleteMedicineId(null);
+      }
+    }
+  };
+
+  useEffect(() => {
+    formMode === null && fetchMedicineList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, rowsPerPage, formMode]);
+
+  useEffect(() => {
+    if (formMode === null) {
+      setSelectedMedicine(null);
+    }
+  }, [formMode]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -111,6 +133,12 @@ const Medicines = () => {
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 />
               </div>
+              {isFetching && (
+                <div className="flex gap-1 ml-40 items-start text-muted-foreground">
+                  <Spinner />
+                  Looking for medicines....
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <Button
@@ -129,7 +157,7 @@ const Medicines = () => {
               </Button>
             </div>
           </div>
-          <Table>
+          <Table className={isFetching ? "pointer-events-none" : ""}>
             <TableHeader>
               <TableRow>
                 <TableHead>Medicine</TableHead>
@@ -143,54 +171,84 @@ const Medicines = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item: ICreateMedicationForm, index: number) => (
-                <TableRow key={index}>
-                  <TableCell>{item.medicationName}</TableCell>
-                  <TableCell>{item.code}</TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>{item.manufacturer}</TableCell>
-                  <TableCell>{format(item.expirationDate, "PP")}</TableCell>
-                  <TableCell>{item.dosageForm}</TableCell>
-                  <TableCell>{item.medicationDosage}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8"
-                        >
-                          <MoreVertical className="h-3.5 w-3.5" />
-                          <span className="sr-only">More</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleViewOrEdit(item, "view")}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleViewOrEdit(item, "edit")}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {medicinesList.map(
+                (item: ICreateMedicationForm, index: number) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.medicationName}</TableCell>
+                    <TableCell>{item.code}</TableCell>
+                    <TableCell>{item.description}</TableCell>
+                    <TableCell>{item.manufacturer}</TableCell>
+                    <TableCell>{format(item.expirationDate, "PP")}</TableCell>
+                    <TableCell>{item.dosageForm}</TableCell>
+                    <TableCell>{item.medicationDosage}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8"
+                          >
+                            <MoreVertical className="h-3.5 w-3.5" />
+                            <span className="sr-only">More</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleViewOrEdit(item, "view")}
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleViewOrEdit(item, "edit")}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setDeleteMedicineId(item.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
             </TableBody>
           </Table>
           <Pagination className="mt-8">
             <PaginationContent>
+              <PaginationItem>
+                <p>Rows per page:</p>
+              </PaginationItem>
+              <PaginationItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 gap-1">
+                      {rowsPerPage}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setRowsPerPage(10)}>
+                      10
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(25)}>
+                      25
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(50)}>
+                      50
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(100)}>
+                      100
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PaginationItem>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() =>
@@ -230,7 +288,15 @@ const Medicines = () => {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-10</strong> of <strong>32</strong> products
+            {
+              <div className="text-xs text-muted-foreground">
+                Showing{" "}
+                <strong>
+                  {startIndex}-{endIndex}
+                </strong>{" "}
+                of <strong>{totalRecords}</strong> medicines
+              </div>
+            }
           </div>
         </CardFooter>
       </Card>
@@ -241,8 +307,37 @@ const Medicines = () => {
           setShowCreateMedicine={setShowCreateMedicine}
           selectedMedicine={selectedMedicine}
           mode={formMode}
+          setMode={setFormMode}
         />
       )}
+
+      <AlertDialog
+        open={deleteMedicineId !== null}
+        onOpenChange={() => setDeleteMedicineId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              medicine from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteMedicineId(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+              }}
+            >
+              Continue
+              {isDeleting && <Spinner type="light" />}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

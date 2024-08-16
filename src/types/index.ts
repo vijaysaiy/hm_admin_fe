@@ -22,6 +22,7 @@ export interface IAppointmentState {
 }
 
 export interface ICreateMedicationForm {
+  id?: string | null;
   medicationName: string;
   code: string;
   description: string;
