@@ -1,3 +1,5 @@
+import { APP_ROUTES } from "@/appRoutes";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,52 +10,69 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { clearUser } from "@/state/userReducer";
+import { UserState } from "@/types";
 import {
-  Bell,
+  Biohazard,
   CalendarPlus2,
-  CircleUser,
   LayoutDashboard,
   Menu,
   Package2,
+  PillBottle,
   Stethoscope,
+  UserIcon,
   Users,
 } from "lucide-react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const navItemIconClass = "h-4 w-4";
 
 const linkToTitle = {
-  "/dashboard": "Dashboard",
-  "/patients": "Patients",
-  "/doctors": "Doctors",
-  "/appointments": "Appointments",
+  [APP_ROUTES.DASHBOARD]: "Dashboard",
+  [APP_ROUTES.PATIENTS]: "Patients",
+  [APP_ROUTES.USERS]: "Users",
+  [APP_ROUTES.APPOINTMENTS]: "Appointments",
 };
 
 const navItems = [
   {
     label: "Dashboard",
     icon: <LayoutDashboard className={navItemIconClass} />,
-    link: "/dashboard",
+    link: APP_ROUTES.DASHBOARD,
   },
   {
     label: "Patients",
     icon: <Users className={navItemIconClass} />,
-    link: "/patients",
+    link: APP_ROUTES.PATIENTS,
   },
   {
-    label: "Doctors",
+    label: "Users",
     icon: <Stethoscope className={navItemIconClass} />,
-    link: "/doctors",
+    link: APP_ROUTES.USERS,
   },
   {
     label: "Appointments",
     icon: <CalendarPlus2 className={navItemIconClass} />,
-    link: "/appointments",
+    link: APP_ROUTES.APPOINTMENTS,
+  },
+  {
+    label: "Medicines",
+    icon: <PillBottle className={navItemIconClass} />,
+    link: APP_ROUTES.MEDICATION,
+  },
+  {
+    label: "Ailments",
+    icon: <Biohazard className={navItemIconClass} />,
+    link: APP_ROUTES.AILMENTS,
   },
 ];
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state: { user: UserState }) => state.user.user);
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -63,10 +82,6 @@ const DashboardLayout = () => {
               <Package2 className="h-6 w-6" />
               <span className="">HMS Admin</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -74,7 +89,7 @@ const DashboardLayout = () => {
                 <Link
                   to={item.link}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
-                    item.link === location.pathname
+                    location.pathname.includes(item.link)
                       ? "bg-gray-200"
                       : "text-muted-foreground"
                   }`}
@@ -115,24 +130,41 @@ const DashboardLayout = () => {
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            <h1 className="text-lg font-semibold md:text-2xl">
+            <h1 className="text-lg font-semibold md:text-2xl" id="header-title">
               {linkToTitle[location.pathname as keyof typeof linkToTitle]}
             </h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
+                <Avatar className="w-10 h-10">
+                  <AvatarImage
+                    src={user?.signedUrl}
+                    alt="image"
+                    className="object-fit "
+                  />
+                  <AvatarFallback className="hover:cursor-pointer">
+                    <UserIcon className="w-12 h-12" />
+                  </AvatarFallback>
+                </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(APP_ROUTES.PROFILE)}>
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  dispatch(clearUser());
+                  navigate(APP_ROUTES.LOGIN);
+                }}
+              >
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
