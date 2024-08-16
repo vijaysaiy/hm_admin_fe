@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -8,90 +18,75 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
+import { deleteAilment, getAilmentList } from "@/https/admin-service";
 import { Ailment } from "@/types";
+import debounce from "lodash.debounce";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import AilmentForm from "./AilmentForm";
 
-const ailments: Ailment[] = [
-  {
-    id: "clzl6psws0001ru5km8nwpfg2",
-    createdAt: "2024-08-08T11:18:19.036Z",
-    updatedAt: "2024-08-08T11:18:19.036Z",
-    name: "Hand pain",
-    description: null,
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    id: "clzl6pyqx0003ru5kqp1yre28",
-    createdAt: "2024-08-08T11:18:26.601Z",
-    updatedAt: "2024-08-08T11:18:26.601Z",
-    name: "Fever",
-    description: null,
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    id: "clzl6q2aw0005ru5kb4u28fic",
-    createdAt: "2024-08-08T11:18:31.209Z",
-    updatedAt: "2024-08-08T11:18:31.209Z",
-    name: "Cold",
-    description: null,
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    id: "clzl6q6ox0007ru5k77wupf8b",
-    createdAt: "2024-08-08T11:18:36.897Z",
-    updatedAt: "2024-08-08T11:18:36.897Z",
-    name: "Chest pain",
-    description: null,
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    id: "clzl6qcui0009ru5kqby26m3s",
-    createdAt: "2024-08-08T11:18:44.874Z",
-    updatedAt: "2024-08-08T11:18:44.874Z",
-    name: "Knee pain",
-    description: null,
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-  {
-    id: "clzva3jhb0003al3w4xer5d1p",
-    createdAt: "2024-08-15T12:50:40.607Z",
-    updatedAt: "2024-08-15T12:50:40.607Z",
-    name: "aug 15",
-    description: "aug 15",
-    isActive: true,
-    isDefault: false,
-    isDeleted: false,
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-  },
-];
 type mode = "view" | "edit" | "create" | null;
 
 const Ailments = () => {
   const [showCreateAilment, setShowCreateAilment] = useState(false);
   const [selectedAilment, setSelectedAilment] = useState<Ailment | null>(null);
   const [formMode, setFormMode] = useState<mode>(null);
+  const [ailments, setAilmentList] = useState<Ailment[]>([]);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteAilmentId, setDeleteAilmentId] = useState<
+    string | null | undefined
+  >(null);
+  const [search, setSearch] = useState<string>("");
+
+  const handleError = useErrorHandler();
 
   const handleViewOrEdit = (ailment: Ailment, mode: mode) => {
     setSelectedAilment(ailment);
     setFormMode(mode);
   };
+
+  const fetchAilmentList = async () => {
+    try {
+      setIsFetching(true);
+      const response = await getAilmentList({ search: search });
+      const data = response.data.data.ailmentList;
+
+      setAilmentList(data);
+    } catch (error) {
+      handleError(error, "Failed to fetch medicine list");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleteAilmentId) {
+      try {
+        setIsDeleting(true);
+        await deleteAilment(deleteAilmentId);
+        toast.success("Ailment deleted successfully");
+        fetchAilmentList();
+      } catch (error) {
+        handleError(error, "Failed to delete ailment");
+      } finally {
+        setIsDeleting(false);
+        setDeleteAilmentId(null);
+      }
+    }
+  };
+
+  const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  }, 900);
+
+  useEffect(() => {
+    formMode === null && fetchAilmentList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formMode, search]);
 
   useEffect(() => {
     if (formMode === null) {
@@ -105,13 +100,20 @@ const Ailments = () => {
         <CardContent>
           <div className="flex flex-1 flex-col gap-4  md:gap-8">
             <div className="flex justify-between items-center w-full mb-2 mt-4 flex-wrap">
-              <div className="relative ">
+              <div className="relative flex  items-center">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
+                  onChange={handleSearch}
                   type="search"
                   placeholder="Search..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 />
+                {isFetching && (
+                  <div className="flex gap-1 ml-40 items-start text-muted-foreground">
+                    <Spinner />
+                    Looking for medicines....
+                  </div>
+                )}
               </div>
               <Button
                 size="sm"
@@ -129,7 +131,11 @@ const Ailments = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div
+              className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 ${
+                isFetching ? "pointer-events-none" : ""
+              }`}
+            >
               {ailments.map((item: Ailment, index: number) => (
                 <Card key={index} className="flex flex-col">
                   <CardHeader>
@@ -159,7 +165,9 @@ const Ailments = () => {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeleteAilmentId(item.id)}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
@@ -187,6 +195,33 @@ const Ailments = () => {
           setMode={setFormMode}
         />
       )}
+      <AlertDialog
+        open={deleteAilmentId !== null}
+        onOpenChange={() => setDeleteAilmentId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              ailment from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteAilmentId(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+              }}
+            >
+              Continue
+              {isDeleting && <Spinner type="light" />}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

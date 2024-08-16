@@ -1,4 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -7,6 +14,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import Spinner from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -14,67 +22,58 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useErrorHandler from "@/hooks/useError";
+import { getPatientList } from "@/https/admin-service";
 import { PatientRecord } from "@/types";
 import { format } from "date-fns";
+import debounce from "lodash.debounce";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const patientList: PatientRecord[] = [
-  {
-    id: "clzi2kmpg000672al8y1q3qza",
-    createdAt: "2024-08-06T06:59:00.724Z",
-    updatedAt: "2024-08-06T06:59:00.724Z",
-    hospitalId: "clz8bfjq800009cxohb5i0s11",
-    patientId: "clz8bwlz9002w9cxocxqzkwik",
-    patient: {
-      name: "Vijaysai",
-      id: "clz8bwlz9002w9cxocxqzkwik",
-      phoneNumber: "+911234567890",
-      gender: "OTHERS",
-      dateOfBirth: "2024-07-29T18:26:09.497Z",
-      bloodGroup: "A+",
-      isd_code: "+91",
-      email: "test@gmail.com",
-    },
-  },
-  {
-    id: "clzi2kmpg000672al8y1q3qzb",
-    createdAt: "2024-08-07T06:59:00.724Z",
-    updatedAt: "2024-08-07T06:59:00.724Z",
-    hospitalId: "clz8bfjq800009cxohb5i0s12",
-    patientId: "clz8bwlz9002w9cxocxqzkwil",
-    patient: {
-      name: "John Doe",
-      id: "clz8bwlz9002w9cxocxqzkwil",
-      phoneNumber: "+911234567891",
-      gender: "MALE",
-      dateOfBirth: "2024-07-30T18:26:09.497Z",
-      bloodGroup: "B+",
-      isd_code: "+91",
-      email: "john.doe@gmail.com",
-    },
-  },
-  {
-    id: "clzi2kmpg000672al8y1q3qzc",
-    createdAt: "2024-08-08T06:59:00.724Z",
-    updatedAt: "2024-08-08T06:59:00.724Z",
-    hospitalId: "clz8bfjq800009cxohb5i0s13",
-    patientId: "clz8bwlz9002w9cxocxqzkwim",
-    patient: {
-      name: "Jane Smith",
-      id: "clz8bwlz9002w9cxocxqzkwim",
-      phoneNumber: "+911234567892",
-      gender: "FEMALE",
-      dateOfBirth: "2024-07-31T18:26:09.497Z",
-      bloodGroup: "O+",
-      isd_code: "+91",
-      email: "jane.smith@gmail.com",
-    },
-  },
-];
 const PatientsPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [patientList, setPatientList] = useState<PatientRecord[]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [search, setSearch] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const startIndex = (currentPage - 1) * rowsPerPage + 1;
+  const endIndex = patientList.length + startIndex - 1;
+
+  const handleError = useErrorHandler();
+
+  const fetchPatientList = async () => {
+    try {
+      setIsFetching(true);
+      const response = await getPatientList({
+        page: currentPage.toString(),
+        limit: rowsPerPage.toString(),
+        search: search,
+      });
+      const data = response.data.data.patientList;
+      const total = response.data.data.meta.totalMatchingRecords;
+      setPatientList(data);
+      setTotalRecords(total);
+      setNoOfPages(Math.ceil(total / rowsPerPage));
+    } catch (error) {
+      handleError(error, "Failed to fetch patient list");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatientList();
+  }, [currentPage, rowsPerPage, search]);
+
+  const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  }, 900);
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">
@@ -84,14 +83,21 @@ const PatientsPage = () => {
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
+                  onChange={handleSearch}
                   type="search"
                   placeholder="Search..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 />
               </div>
+              {isFetching && (
+                <div className="flex gap-1 ml-40 items-start text-muted-foreground">
+                  <Spinner />
+                  Looking for patients....
+                </div>
+              )}
             </div>
           </div>
-          <Table>
+          <Table className={isFetching ? "pointer-events-none" : ""}>
             <TableHeader>
               <TableRow className="font-medium">
                 <TableCell>Patient Name</TableCell>
@@ -121,6 +127,35 @@ const PatientsPage = () => {
           </Table>
           <Pagination className="mt-8">
             <PaginationContent>
+              <PaginationItem>
+                <p>Rows per page:</p>
+              </PaginationItem>
+              <PaginationItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 gap-1">
+                      {rowsPerPage}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setRowsPerPage(5)}>
+                      5
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(10)}>
+                      10
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(25)}>
+                      25
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(50)}>
+                      50
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(100)}>
+                      100
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PaginationItem>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() =>
@@ -160,7 +195,15 @@ const PatientsPage = () => {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-10</strong> of <strong>32</strong> patients
+            {
+              <div className="text-xs text-muted-foreground">
+                Showing{" "}
+                <strong>
+                  {startIndex}-{endIndex}
+                </strong>{" "}
+                of <strong>{totalRecords}</strong> patients
+              </div>
+            }
           </div>
         </CardFooter>
       </Card>

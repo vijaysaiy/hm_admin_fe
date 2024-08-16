@@ -1,5 +1,4 @@
 import {
-  CalendarCheck,
   CheckCircle2,
   Eye,
   Hourglass,
@@ -27,6 +26,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import Spinner from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -35,95 +35,90 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useErrorHandler from "@/hooks/useError";
+import { getAppointmentList } from "@/https/admin-service";
 import { Appointment } from "@/types";
 import { format } from "date-fns";
-import { useState } from "react";
+import debounce from "lodash.debounce";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const appointments: Appointment[] = [
-  {
-    id: "clzmboszg0001iy18ty19sf55",
-    appointmentDate: "2024-08-09T06:26:30.898Z",
-    appointmentStatus: "CANCELLED",
-    doctor: {
-      id: "clz8bgm9k00029cxob0mn70c3",
-      name: "Test doctor",
-      speciality: "General doctor",
-      profilePictureUrl: "",
-    },
-    patient: {
-      id: "clz8bwlz9002w9cxocxqzkwik",
-      name: "Vijaysai",
-      email: "test@gmail.com",
-      phoneNumber: "+911234567890",
-      isd_code: "+91",
-    },
-    ailment: {
-      id: "clzl6pyqx0003ru5kqp1yre28",
-      name: "Fever",
-    },
-    doctorSlots: {
-      doctorId: "clz8bgm9k00029cxob0mn70c3",
-      weekDaysId: "clz8blpm0001l9cxolobdd8ms",
-      id: "clzmb5fx10021r00g3c6wl7l3",
-      slot: {
-        id: "clzmb0dlf0008r00g6d4ioq7h",
-        startTime: "08:00 AM",
-        endTime: "09:00 AM",
-        hospitalId: "clz8bfjq800009cxohb5i0s11",
-      },
-    },
-  },
-  {
-    id: "clzmboszg0002iy18ty19sf56",
-    appointmentDate: "2024-08-10T10:00:00.000Z",
-    appointmentStatus: "CONFIRMED",
-    doctor: {
-      id: "clz8bgm9k00029cxob0mn70c4",
-      name: "Dr. Smith",
-      speciality: "Cardiologist",
-      profilePictureUrl: "",
-    },
-    patient: {
-      id: "clz8bwlz9002w9cxocxqzkwil",
-      name: "John Doe",
-      email: "john.doe@gmail.com",
-      phoneNumber: "+911234567891",
-      isd_code: "+91",
-    },
-    ailment: {
-      id: "clzl6pyqx0003ru5kqp1yre29",
-      name: "Chest Pain",
-    },
-    doctorSlots: {
-      doctorId: "clz8bgm9k00029cxob0mn70c4",
-      weekDaysId: "clz8blpm0001l9cxolobdd8mt",
-      id: "clzmb5fx10021r00g3c6wl7l4",
-      slot: {
-        id: "clzmb0dlf0008r00g6d4ioq7i",
-        startTime: "10:00 AM",
-        endTime: "11:00 AM",
-        hospitalId: "clz8bfjq800009cxohb5i0s12",
-      },
-    },
-  },
-];
+type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "";
 
-
+const statusToText = {
+  SCHEDULED: {
+    icon: <Hourglass className="mr-2 h-4 w-4" />,
+    text: "Scheduled",
+  },
+  COMPLETED: {
+    icon: <CheckCircle2 className="mr-2 h-4 w-4" />,
+    text: "Completed",
+  },
+  CANCELLED: {
+    icon: <X className="mr-2 h-4 w-4" />,
+    text: "Cancelled",
+  },
+};
 const AppointmentsPage = () => {
   const [date, setDate] = useState<Date | undefined>();
   const [noOfPages, setNoOfPages] = useState(15);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [appointmentsList, setAppointmentList] = useState<Appointment[]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [search, setSearch] = useState("");
+  const [appointmentStatus, setAppointmentStatus] =
+    useState<AppointmentStatus>("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const startIndex = (currentPage - 1) * rowsPerPage + 1;
+  const endIndex = appointmentsList.length + startIndex - 1;
+
+  const handleError = useErrorHandler();
+
+  const fetchAppointmentList = async () => {
+    try {
+      setIsFetching(true);
+      const response = await getAppointmentList({
+        page: currentPage.toString(),
+        limit: rowsPerPage.toString(),
+        appointmentStatus: appointmentStatus,
+        search
+      });
+      const data = response.data.data.patientList;
+      const totalRecords = response.data.data.meta.totalMatchingRecords;
+      setTotalRecords(totalRecords);
+      setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
+      setAppointmentList(data);
+    } catch (error) {
+      handleError(error, "Failed to fetch medicine list");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  }, 900);
+
+  useEffect(() => {
+    fetchAppointmentList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, rowsPerPage, appointmentStatus,search]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">
         <CardContent>
-          <div className="table-header flex justify-between w-full mb-2 mt-4">
+          <div className="table-header flex items-center w-full mb-2 mt-4">
             <div className="flex gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
+                  onChange={handleSearch}
                   type="search"
                   placeholder="Search..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
@@ -138,38 +133,53 @@ const AppointmentsPage = () => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="text-muted-foreground text-sm font-normal "
+                    className="text-muted-foreground text-sm font-normal"
                   >
-                    Filter by status
+                    {appointmentStatus !== "" ? (
+                      <p className="flex items-center">
+                        {statusToText[appointmentStatus].icon}
+                        {statusToText[appointmentStatus].text}
+                      </p>
+                    ) : (
+                      "Filter by status"
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                  // onClick={() => handleViewOrEdit(item, "view")}
+                    onClick={() => setAppointmentStatus("SCHEDULED")}
                   >
                     <Hourglass className="mr-2 h-4 w-4" />
                     Scheduled
                   </DropdownMenuItem>
+
                   <DropdownMenuItem
-                  // onClick={() => handleViewOrEdit(item, "view")}
-                  >
-                    <CalendarCheck className="mr-2 h-4 w-4" /> Confirmed
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                  // onClick={() => handleViewOrEdit(item, "view")}
+                    onClick={() => setAppointmentStatus("COMPLETED")}
                   >
                     <CheckCircle2 className="mr-2 h-4 w-4" /> Completed
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setAppointmentStatus("CANCELLED")}
+                  >
                     <X className="mr-2 h-4 w-4" />
                     Cancelled
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setAppointmentStatus("")}>
+                    Clear Filter
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            {isFetching && (
+              <div className="flex gap-1 ml-10 items-start text-muted-foreground ">
+                <Spinner />
+                Looking for appointments....
+              </div>
+            )}
           </div>
-          <Table>
+          <Table className={isFetching ? "pointer-events-none" : ""}>
             <TableHeader>
               <TableRow>
                 <TableHead>Patient</TableHead>
@@ -182,7 +192,7 @@ const AppointmentsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {appointments.map((appointment: Appointment) => (
+              {appointmentsList.map((appointment: Appointment) => (
                 <TableRow key={appointment.id}>
                   <TableCell className="font-medium">
                     <div className="font-medium">
@@ -241,6 +251,35 @@ const AppointmentsPage = () => {
           <Pagination className="mt-8">
             <PaginationContent>
               <PaginationItem>
+                <p>Rows per page:</p>
+              </PaginationItem>
+              <PaginationItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 gap-1">
+                      {rowsPerPage}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setRowsPerPage(5)}>
+                      5
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(10)}>
+                      10
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(25)}>
+                      25
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(50)}>
+                      50
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRowsPerPage(100)}>
+                      100
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PaginationItem>
+              <PaginationItem>
                 <PaginationPrevious
                   onClick={() =>
                     setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
@@ -279,7 +318,15 @@ const AppointmentsPage = () => {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-10</strong> of <strong>32</strong> products
+            {
+              <div className="text-xs text-muted-foreground">
+                Showing{" "}
+                <strong>
+                  {startIndex}-{endIndex}
+                </strong>{" "}
+                of <strong>{totalRecords}</strong> appointments
+              </div>
+            }
           </div>
         </CardFooter>
       </Card>

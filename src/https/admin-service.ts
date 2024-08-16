@@ -10,7 +10,10 @@ export const createMedicine = async (payload: ICreateMedicationForm) => {
   return api.post(API_END_POINTS.MEDICINE_CREATE, payload);
 };
 
-export const updateMedicine = async (payload: ICreateMedicationForm, id: string) => {
+export const updateMedicine = async (
+  payload: ICreateMedicationForm,
+  id: string
+) => {
   return api.patch(API_END_POINTS.MEDICINE_UPDATE + `/${id}`, payload);
 };
 
@@ -18,7 +21,7 @@ export const deleteMedicine = async (id: string) => {
   return api.delete(API_END_POINTS.MEDICINE_DELETE + `/${id}`);
 };
 
-export const getAilmentList = async (queryParams: Record<string, string>) => {
+export const getAilmentList = async (queryParams?: Record<string, string>) => {
   return api.get(API_END_POINTS.AILMENT_LISt, { params: queryParams });
 };
 
@@ -42,4 +45,8 @@ export const getAppointmentList = async (
 
 export const getAppointmentDetails = async (id: string) => {
   return api.get(API_END_POINTS.APPOINTMENT_DETAILS + `/${id}`);
+};
+
+export const getPatientList = async (queryParams: Record<string, string>) => {
+  return api.get(API_END_POINTS.PATIENTS_LIST, { params: queryParams });
 };
