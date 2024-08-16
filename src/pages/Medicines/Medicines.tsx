@@ -88,7 +88,7 @@ const Medicines = () => {
     } catch (error) {
       handleError(error, "Failed to fetch medicine list");
     } finally {
-      setIsFetching(true);
+      setIsFetching(false);
     }
   };
 
