@@ -38,6 +38,7 @@ import {
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList } from "@/https/admin-service";
 import { Appointment } from "@/types";
+import { statusClasses } from "@/utils";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
@@ -74,7 +75,7 @@ const AppointmentsPage = () => {
 
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
-  const endIndex = appointmentsList.length + startIndex - 1;
+  const endIndex = appointmentsList?.length + startIndex - 1;
 
   const handleError = useErrorHandler();
 
@@ -85,9 +86,9 @@ const AppointmentsPage = () => {
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
         appointmentStatus: appointmentStatus,
-        search
+        search,
       });
-      const data = response.data.data.patientList;
+      const data = response.data.data.appointmentList;
       const totalRecords = response.data.data.meta.totalMatchingRecords;
       setTotalRecords(totalRecords);
       setNoOfPages(Math.ceil(totalRecords / rowsPerPage));
@@ -107,7 +108,7 @@ const AppointmentsPage = () => {
   useEffect(() => {
     fetchAppointmentList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, rowsPerPage, appointmentStatus,search]);
+  }, [currentPage, rowsPerPage, appointmentStatus, search]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -192,7 +193,7 @@ const AppointmentsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {appointmentsList.map((appointment: Appointment) => (
+              {appointmentsList?.map((appointment: Appointment) => (
                 <TableRow key={appointment.id}>
                   <TableCell className="font-medium">
                     <div className="font-medium">
@@ -211,7 +212,13 @@ const AppointmentsPage = () => {
                     }`}
                   </TableCell>
                   <TableCell className="capitalize">
-                    {appointment.appointmentStatus.toLowerCase()}
+                    <p
+                      className={`badge ${
+                        statusClasses[appointment.appointmentStatus]
+                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
+                    >
+                      {appointment.appointmentStatus.toLowerCase()}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

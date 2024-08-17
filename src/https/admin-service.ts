@@ -1,4 +1,4 @@
-import { Ailment, ICreateMedicationForm } from "@/types";
+import { Ailment, IAppointmentUpdate, ICreateMedicationForm } from "@/types";
 import { api } from "./api";
 import { API_END_POINTS } from "./constants";
 
@@ -12,7 +12,7 @@ export const createMedicine = async (payload: ICreateMedicationForm) => {
 
 export const updateMedicine = async (
   payload: ICreateMedicationForm,
-  id: string,
+  id: string
 ) => {
   return api.patch(API_END_POINTS.MEDICINE_UPDATE + `/${id}`, payload);
 };
@@ -38,7 +38,7 @@ export const deleteAilment = async (id: string) => {
 };
 
 export const getAppointmentList = async (
-  queryParams: Record<string, string>,
+  queryParams: Record<string, string>
 ) => {
   return api.get(API_END_POINTS.APPOINTMENT_LIST, { params: queryParams });
 };
@@ -47,8 +47,16 @@ export const getAppointmentDetails = async (id: string) => {
   return api.get(API_END_POINTS.APPOINTMENT_DETAILS + `/${id}`);
 };
 
+export const updateAppointment = async (payload: IAppointmentUpdate) => {
+  return api.post(API_END_POINTS.APPOINTMENT_UPDATE, payload);
+};
+
 export const getPatientList = async (queryParams: Record<string, string>) => {
   return api.get(API_END_POINTS.PATIENTS_LIST, { params: queryParams });
+};
+
+export const getDashboardMetrics = async (id: string = "") => {
+  return api.get(API_END_POINTS.DASHBOARD_METRICS + `/${id}`);
 };
 
 export const getFeedbackList = async (queryParams: Record<string, string>) => {

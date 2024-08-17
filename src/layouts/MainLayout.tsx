@@ -99,6 +99,7 @@ const DashboardLayout = () => {
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {navItems.map((item) => (
                 <Link
+                  key={item.link}
                   to={item.link}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
                     location.pathname.includes(item.link)
@@ -131,6 +132,7 @@ const DashboardLayout = () => {
               <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                 {navItems.map((item) => (
                   <Link
+                    key={item.link}
                     to={item.link}
                     onClick={() => setOpenSidebar(false)}
                     className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary  ${
