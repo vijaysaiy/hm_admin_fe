@@ -13,6 +13,7 @@ import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
 import PatientsPage from "./pages/PatientsPage";
 import RegisterPage from "./pages/RegisterPage";
+import AppointmentFeedback from "./pages/AppointmentFeedbacks";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +52,10 @@ const router = createBrowserRouter([
         path: APP_ROUTES.AILMENTS,
         element: <Ailments />,
       },
-
+      {
+        path: APP_ROUTES.APPOINTMENT_FEEDBACKS,
+        element: <AppointmentFeedback />,
+      },
       /* 404 page */
       {
         path: "*",

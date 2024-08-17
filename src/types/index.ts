@@ -148,6 +148,13 @@ export interface Doctor {
   address: string;
 }
 
+export interface Feedbacks {
+  id: String;
+  overallSatisfaction: Number;
+  feedBackRemarks: String;
+  appointment: Appointment;
+}
+
 export interface IAppointmentForm {
   doctorId: string;
   doctorSlotId: string;
