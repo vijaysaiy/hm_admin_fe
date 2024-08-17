@@ -29,6 +29,7 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import NoDataFound from "./NoDataFound";
 
 const PatientsPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -67,6 +68,7 @@ const PatientsPage = () => {
 
   useEffect(() => {
     fetchPatientList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, rowsPerPage, search]);
 
   const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +76,9 @@ const PatientsPage = () => {
     setCurrentPage(1);
   }, 900);
 
+  if (!isFetching && search === "" && patientList.length === 0) {
+    return <NoDataFound message="No Patients found" />;
+  }
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">

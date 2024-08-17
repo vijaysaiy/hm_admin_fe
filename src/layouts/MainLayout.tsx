@@ -26,7 +26,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const navItemIconClass = "h-4 w-4";
 
@@ -84,7 +85,11 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: { user: UserState }) => state.user.user);
-
+  
+  if (!user) {
+    toast.error("Session expired. Please login again.");
+    return <Navigate to={APP_ROUTES.LOGIN} />;
+  }
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">

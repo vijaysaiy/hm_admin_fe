@@ -97,6 +97,7 @@ const DashboardPage = () => {
       setTodaysMetrics(TODAYS_METRICS_INITIAL_STATE);
       setApppointmentList([]);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   return (

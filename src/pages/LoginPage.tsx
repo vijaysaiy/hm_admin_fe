@@ -25,6 +25,7 @@ import useErrorHandler from "@/hooks/useError";
 import { getAdminDetails, login } from "@/https/auth-service";
 import { setUser } from "@/state/userReducer";
 import { IloginForm, UserState } from "@/types";
+import { AxiosError } from "axios";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -62,7 +63,7 @@ const LoginForm = () => {
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
   }
-  console.log(form.formState.errors);
+
   const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
     try {
       setSubmitting(true);
@@ -76,16 +77,16 @@ const LoginForm = () => {
         userNameType,
       };
       const response = await login(payload);
-      console.log(response.status);
       if (response.status === 200) {
         const detailsRes = await getAdminDetails();
-
         dispatch(setUser(detailsRes.data.data));
         navigate(APP_ROUTES.DASHBOARD);
       }
       toast.success("Logged in successfully");
     } catch (error) {
-      console.log(error);
+      if ((error as AxiosError).response?.status === 403) {
+        return toast.error("Invalid credentials");
+      }
       handleError(error, "Failed to login");
     } finally {
       setSubmitting(false);

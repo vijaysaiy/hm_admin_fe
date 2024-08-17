@@ -167,9 +167,9 @@ export interface Doctor {
 }
 
 export interface Feedbacks {
-  id: String;
-  overallSatisfaction: Number;
-  feedBackRemarks: String;
+  id: string;
+  overallSatisfaction: number;
+  feedBackRemarks: string;
   appointment: Appointment;
 }
 

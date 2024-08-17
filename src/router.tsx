@@ -6,14 +6,13 @@ import AuthLayout from "./layouts/AuthLayout";
 import ErrorBoundary from "./layouts/ErrorBoundary";
 import MainLayout from "./layouts/MainLayout";
 import Ailments from "./pages/Ailments/Ailments";
+import AppointmentFeedback from "./pages/AppointmentFeedbacks";
 import AppointmentDetails from "./pages/Appointments/AppointmentDetails";
 import AppointmentsPage from "./pages/Appointments/AppointmentsPage";
 import DoctorsPage from "./pages/DoctorsPage";
 import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
 import PatientsPage from "./pages/PatientsPage";
-import RegisterPage from "./pages/RegisterPage";
-import AppointmentFeedback from "./pages/AppointmentFeedbacks";
 
 const router = createBrowserRouter([
   {
@@ -74,10 +73,6 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.LOGIN,
         element: <LoginPage />,
-      },
-      {
-        path: APP_ROUTES.REGISTER,
-        element: <RegisterPage />,
       },
       /* 404 page */
       {

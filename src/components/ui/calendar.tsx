@@ -69,9 +69,9 @@ function Calendar({
   const months = Array.from({ length: 12 }, (_, i) =>
     new Date(0, i).toLocaleString("default", { month: "long" })
   );
-  const currentYear = new Date().getFullYear();
+   const currentYear = new Date().getFullYear();
   const years = Array.from(
-    { length: currentYear - 1900 + 1 },
+    { length: currentYear - 1900 + 1 + 50 },
     (_, i) => 1900 + i
   );
 

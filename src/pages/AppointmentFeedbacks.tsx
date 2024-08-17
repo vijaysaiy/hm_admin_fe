@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -29,6 +30,7 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import NoDataFound from "./NoDataFound";
 
 const AppointmentFeedbackPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -74,6 +76,10 @@ const AppointmentFeedbackPage = () => {
     setSearch(e.target.value);
     setCurrentPage(1);
   }, 400);
+
+  if (!isFetching && search === "" && feedbackList.length === 0) {
+    return <NoDataFound message="No Feedbacks given by patients yet" />;
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -182,7 +188,7 @@ const AppointmentFeedbackPage = () => {
                 <PaginationNext
                   onClick={() =>
                     setCurrentPage((prev) =>
-                      prev === noOfPages ? noOfPages : prev + 1,
+                      prev === noOfPages ? noOfPages : prev + 1
                     )
                   }
                 />

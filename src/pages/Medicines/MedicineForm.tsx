@@ -220,6 +220,7 @@ const MedicineForm = ({
                           />
                         ) : (
                           <DatePicker
+                            disabled={{ before: new Date() }}
                             date={field.value as Date | undefined}
                             setDate={(date) => {
                               field.onChange(date);
