@@ -16,5 +16,5 @@ api.interceptors.response.use(
       store.dispatch(clearUser());
     }
     return Promise.reject(error);
-  }
+  },
 );

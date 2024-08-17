@@ -1,6 +1,7 @@
 export const API_END_POINTS = {
   LOGIN: "admin/login",
   ADMIN_DETAILS: "admin/details",
+  FEEDBACK_LIST: "admin/feedback/list",
 
   MEDICINES_LIST: "admin/hospital/medication/list",
   MEDICINE_CREATE: "admin/hospital/medication/create",

@@ -11,4 +11,5 @@ export const APP_ROUTES = {
   APPOINTMENT_DETAILS: "/admin/appointments/details",
   MEDICATION: "/admin/medications",
   AILMENTS: "/admin/ailments",
+  APPOINTMENT_FEEDBACKS: "/admin/feedbacks",
 };

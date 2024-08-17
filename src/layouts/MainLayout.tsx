@@ -22,6 +22,7 @@ import {
   Stethoscope,
   UserIcon,
   Users,
+  MessageSquareText,
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,6 +37,7 @@ const linkToTitle = {
   [APP_ROUTES.APPOINTMENTS]: "Appointments",
   [APP_ROUTES.MEDICATION]: "Medicines",
   [APP_ROUTES.AILMENTS]: "Ailments",
+  [APP_ROUTES.APPOINTMENT_FEEDBACKS]: "Feedbacks",
 };
 
 const navItems = [
@@ -68,6 +70,11 @@ const navItems = [
     label: "Ailments",
     icon: <Biohazard className={navItemIconClass} />,
     link: APP_ROUTES.AILMENTS,
+  },
+  {
+    label: "Feedbacks",
+    icon: <MessageSquareText className={navItemIconClass} />,
+    link: APP_ROUTES.APPOINTMENT_FEEDBACKS,
   },
 ];
 
