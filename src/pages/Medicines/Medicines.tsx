@@ -37,7 +37,7 @@ import {
 import useErrorHandler from "@/hooks/useError";
 import { deleteMedicine, getMedicineList } from "@/https/admin-service";
 import { ICreateMedicationForm } from "@/types";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 import debounce from "lodash.debounce";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -81,7 +81,7 @@ const Medicines = () => {
       const response = await getMedicineList({
         page: currentPage.toString(),
         limit: rowsPerPage.toString(),
-        search
+        search,
       });
       const data = response.data.data.medicationList;
       const totalRecords = response.data.data.meta.totalMatchingRecords;
@@ -187,7 +187,17 @@ const Medicines = () => {
                     <TableCell>{item.code}</TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell>{item.manufacturer}</TableCell>
-                    <TableCell>{format(item.expirationDate, "PP")}</TableCell>
+                    <TableCell>
+                      <p
+                        className={
+                          isBefore(item.expirationDate, new Date())
+                            ? "bg-red-100 text-red-800 py-1 px-2 rounded w-fit"
+                            : ""
+                        }
+                      >
+                        {format(item.expirationDate, "PP")}
+                      </p>
+                    </TableCell>
                     <TableCell>{item.dosageForm}</TableCell>
                     <TableCell>{item.medicationDosage}</TableCell>
                     <TableCell>

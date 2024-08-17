@@ -48,6 +48,20 @@ export interface ICreateMedicationForm {
   hospitalId?: string;
 }
 
+export interface IAppointmentUpdate {
+  status: "COMPLETED" | "CANCELLED";
+  appointmentId: string;
+  doctorRemarks?: string;
+  prescriptions?: IMedcation[];
+}
+
+export interface IMedcation {
+  medicationStockId: string;
+  durationInDays: string;
+  foodRelation: "BEFORE_MEAL" | "AFTER_MEAL" | "";
+  timeOfDay: Array<"MORNING" | "AFTERNOON" | "EVENING" | "NIGHT">;
+}
+
 export interface Ailment {
   id?: string;
   createdAt?: string;
@@ -107,9 +121,13 @@ export interface Appointment {
     email: string;
     phoneNumber: string;
     isd_code: string;
+    bloodGroup: string;
   };
   ailment: Ailment;
   doctorSlots: DoctorSlots;
+  patientAppointmentDocs: Array<
+    Record<string, string | Record<string, string>>
+  >;
 }
 
 // app types
