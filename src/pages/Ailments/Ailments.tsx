@@ -26,6 +26,7 @@ import debounce from "lodash.debounce";
 import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import NoDataFound from "../NoDataFound";
 import AilmentForm from "./AilmentForm";
 
 type mode = "view" | "edit" | "create" | null;
@@ -136,52 +137,56 @@ const Ailments = () => {
                 isFetching ? "pointer-events-none" : ""
               }`}
             >
-              {ailments.map((item: Ailment, index: number) => (
-                <Card key={index} className="flex flex-col">
-                  <CardHeader>
-                    <div className="flex justify-between items-center gap-2">
-                      <h4 className="text-lg font-semibold">{item.name}</h4>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewOrEdit(item, "view")}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleViewOrEdit(item, "edit")}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setDeleteAilmentId(item.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {item.description || "No description available"}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+              {ailments.length === 0 ? (
+                <NoDataFound message="No Ailments found" />
+              ) : (
+                ailments.map((item: Ailment, index: number) => (
+                  <Card key={index} className="flex flex-col">
+                    <CardHeader>
+                      <div className="flex justify-between items-center gap-2">
+                        <h4 className="text-lg font-semibold">{item.name}</h4>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "view")}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "edit")}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteAilmentId(item.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        {item.description || "No description available"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         </CardContent>

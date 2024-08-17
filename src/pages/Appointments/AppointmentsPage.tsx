@@ -43,6 +43,7 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NoDataFound from "../NoDataFound";
 
 type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "";
 
@@ -109,6 +110,10 @@ const AppointmentsPage = () => {
     fetchAppointmentList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, rowsPerPage, appointmentStatus, search]);
+
+  if (!isFetching && search === "" && appointmentsList.length === 0) {
+    return <NoDataFound message="No appointments found" />;
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

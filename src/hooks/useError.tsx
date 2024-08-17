@@ -2,6 +2,7 @@
 import { toast } from "sonner";
 
 const useErrorHandler = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleError = (error: any, customMessage?: string) => {
     console.error(customMessage, error);
 

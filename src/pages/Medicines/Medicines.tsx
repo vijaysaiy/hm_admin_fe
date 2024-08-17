@@ -43,6 +43,7 @@ import { Edit, Eye, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import MedicineForm from "./MedicineForm";
+import NoDataFound from "../NoDataFound";
 
 type mode = "view" | "edit" | "create" | null;
 
@@ -180,62 +181,66 @@ const Medicines = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {medicinesList.map(
-                (item: ICreateMedicationForm, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.medicationName}</TableCell>
-                    <TableCell>{item.code}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell>{item.manufacturer}</TableCell>
-                    <TableCell>
-                      <p
-                        className={
-                          isBefore(item.expirationDate, new Date())
-                            ? "bg-red-100 text-red-800 py-1 px-2 rounded w-fit"
-                            : ""
-                        }
-                      >
-                        {format(item.expirationDate, "PP")}
-                      </p>
-                    </TableCell>
-                    <TableCell>{item.dosageForm}</TableCell>
-                    <TableCell>{item.medicationDosage}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8"
-                          >
-                            <MoreVertical className="h-3.5 w-3.5" />
-                            <span className="sr-only">More</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewOrEdit(item, "view")}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleViewOrEdit(item, "edit")}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setDeleteMedicineId(item.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+              {medicinesList.length === 0 ? (
+                <NoDataFound message="No Medicines found" />
+              ) : (
+                medicinesList.map(
+                  (item: ICreateMedicationForm, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.medicationName}</TableCell>
+                      <TableCell>{item.code}</TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell>{item.manufacturer}</TableCell>
+                      <TableCell>
+                        <p
+                          className={
+                            isBefore(item.expirationDate, new Date())
+                              ? "bg-red-100 text-red-800 py-1 px-2 rounded w-fit"
+                              : ""
+                          }
+                        >
+                          {format(item.expirationDate, "PP")}
+                        </p>
+                      </TableCell>
+                      <TableCell>{item.dosageForm}</TableCell>
+                      <TableCell>{item.medicationDosage}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8"
+                            >
+                              <MoreVertical className="h-3.5 w-3.5" />
+                              <span className="sr-only">More</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "view")}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "edit")}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteMedicineId(item.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )
                 )
               )}
             </TableBody>
