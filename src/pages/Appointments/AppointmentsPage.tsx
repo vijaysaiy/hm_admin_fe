@@ -1,5 +1,7 @@
 import {
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   Hourglass,
   MoreVertical,
@@ -23,8 +25,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/ui/spinner";
 import {
@@ -260,12 +260,12 @@ const AppointmentsPage = () => {
               ))}
             </TableBody>
           </Table>
-          <Pagination className="mt-8">
-            <PaginationContent>
-              <PaginationItem>
-                <p>Rows per page:</p>
-              </PaginationItem>
-              <PaginationItem>
+        </CardContent>
+        <CardFooter className="flex-wrap gap-4">
+          <Pagination className="w-fit">
+            <PaginationContent className="flex-wrap gap-2 items-center">
+              <PaginationItem className="flex gap-2 items-center">
+                <p className="text-sm">Rows per page:</p>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline" className="h-7 gap-1">
@@ -291,44 +291,48 @@ const AppointmentsPage = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </PaginationItem>
-              <PaginationItem>
-                <PaginationPrevious
+              <PaginationItem className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
                   }
-                />
-              </PaginationItem>
-              <div className="flex gap-4 items-center">
-                <Input
-                  value={currentPage}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  className="w-8 text-center px-1 h-7"
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (isNaN(value) || value < 1 || value > noOfPages) {
-                      setCurrentPage(1);
-                    } else {
-                      setCurrentPage(value);
-                    }
-                  }}
-                />
-                <p>of {noOfPages} pages</p>
-              </div>
-              <PaginationItem>
-                <PaginationNext
+                >
+                  <ChevronLeft className="h-3 w-3" />{" "}
+                </Button>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    value={currentPage}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    className="w-8 text-center px-1 h-7"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (isNaN(value) || value < 1 || value > noOfPages) {
+                        setCurrentPage(1);
+                      } else {
+                        setCurrentPage(value);
+                      }
+                    }}
+                  />
+                  <p>of {noOfPages} pages</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
                       prev === noOfPages ? noOfPages : prev + 1
                     )
                   }
-                />
+                >
+                  <ChevronRight className="h-3 w-3" />
+                </Button>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-        </CardContent>
-        <CardFooter>
           <div className="text-xs text-muted-foreground">
             {
               <div className="text-xs text-muted-foreground">

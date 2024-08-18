@@ -56,8 +56,9 @@ export interface IAppointmentUpdate {
 }
 
 export interface IMedcation {
+  medicationStock?: Record<string, string>;
   medicationStockId: string;
-  durationInDays: string;
+  durationInDays: number | "";
   foodRelation: "BEFORE_MEAL" | "AFTER_MEAL" | "";
   timeOfDay: Array<"MORNING" | "AFTERNOON" | "EVENING" | "NIGHT">;
 }
@@ -109,6 +110,7 @@ export interface Appointment {
   id: string;
   appointmentDate: string;
   appointmentStatus: string;
+  patientPrescription?: IMedcation[];
   doctor: {
     id: string;
     name: string;
