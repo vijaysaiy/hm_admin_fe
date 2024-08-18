@@ -1,16 +1,20 @@
-import { File, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, File, Plus, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import DatePicker from "@/components/ui/date-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Table,
@@ -25,7 +29,8 @@ import { useState } from "react";
 
 const DoctorsPage = () => {
   const [date, setDate] = useState<Date | undefined>();
-  const [noOfPages, setNoOfPages] = useState(15);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [noOfPages, _setNoOfPages] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddDoctorForm, setShowAddDoctorForm] = useState(false);
   return (
@@ -106,48 +111,75 @@ const DoctorsPage = () => {
               </TableRow>
             </TableBody>
           </Table>
-          <Pagination className="mt-8">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
+        </CardContent>
+        <CardFooter className="flex-wrap gap-4">
+          <Pagination className="w-fit">
+            <PaginationContent className="flex-wrap gap-2 items-center">
+              <PaginationItem className="flex gap-2 items-center">
+                <p className="text-sm">Rows per page:</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-7 gap-1">
+                      {10}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => {}}>5</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {}}>10</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {}}>25</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {}}>50</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {}}>100</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PaginationItem>
+              <PaginationItem className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
                   }
-                />
-              </PaginationItem>
-              <div className="flex gap-4 items-center">
-                <Input
-                  value={currentPage}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  className="w-8 text-center px-1 h-7"
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (isNaN(value) || value < 1 || value > noOfPages) {
-                      setCurrentPage(1);
-                    } else {
-                      setCurrentPage(value);
-                    }
-                  }}
-                />
-                <p>of {noOfPages} pages</p>
-              </div>
-              <PaginationItem>
-                <PaginationNext
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                </Button>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    value={currentPage}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    className="w-8 text-center px-1 h-7"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (isNaN(value) || value < 1 || value > noOfPages) {
+                        setCurrentPage(1);
+                      } else {
+                        setCurrentPage(value);
+                      }
+                    }}
+                  />
+                  <p>of {noOfPages} pages</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
                       prev === noOfPages ? noOfPages : prev + 1
                     )
                   }
-                />
+                >
+                  <ChevronRight className="w-3 h-3" />{" "}
+                </Button>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-        </CardContent>
-        <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-10</strong> of <strong>32</strong> products
+            {
+              <div className="text-xs text-muted-foreground">
+                Showing <strong>5</strong> of <strong>{`10`}</strong> users
+              </div>
+            }
           </div>
         </CardFooter>
       </Card>

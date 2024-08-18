@@ -12,8 +12,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import Spinner from "@/components/ui/spinner";
 import {
@@ -28,7 +26,7 @@ import { getFeedbackList } from "@/https/admin-service";
 import { Feedbacks } from "@/types";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
-import { Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import NoDataFound from "./NoDataFound";
 
@@ -109,9 +107,11 @@ const AppointmentFeedbackPage = () => {
               <TableRow className="font-medium">
                 <TableCell>Patient Name</TableCell>
                 <TableCell>Doctor Name</TableCell>
-                <TableCell>Appointment Date</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  Appointment Date
+                </TableCell>
                 <TableCell>Overall Satisfication</TableCell>
-                <TableCell>remarks</TableCell>
+                <TableCell className="hidden md:table-cell">remarks</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -119,21 +119,23 @@ const AppointmentFeedbackPage = () => {
                 <TableRow key={record.id.toString()}>
                   <TableCell>{record.appointment.patient.name}</TableCell>
                   <TableCell>{record.appointment.doctor.name}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {format(record.appointment.appointmentDate, "PP")}
                   </TableCell>
                   <TableCell>{record.overallSatisfaction.toString()}</TableCell>
-                  <TableCell>{record.feedBackRemarks}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {record.feedBackRemarks}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <Pagination className="mt-8">
-            <PaginationContent>
-              <PaginationItem>
-                <p>Rows per page:</p>
-              </PaginationItem>
-              <PaginationItem>
+        </CardContent>
+        <CardFooter className="flex-wrap gap-4">
+          <Pagination className="w-fit">
+            <PaginationContent className="flex-wrap gap-2 items-center">
+              <PaginationItem className="flex gap-2 items-center">
+                <p className="text-sm">Rows per page:</p>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="outline" className="h-7 gap-1">
@@ -159,44 +161,47 @@ const AppointmentFeedbackPage = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </PaginationItem>
-              <PaginationItem>
-                <PaginationPrevious
+              <PaginationItem className="flex gap-2">
+                <Button
+                  variant="outline" size="icon"
                   onClick={() =>
                     setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
                   }
-                />
-              </PaginationItem>
-              <div className="flex gap-4 items-center">
-                <Input
-                  value={currentPage}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  className="w-8 text-center px-1 h-7"
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (isNaN(value) || value < 1 || value > noOfPages) {
-                      setCurrentPage(1);
-                    } else {
-                      setCurrentPage(value);
-                    }
-                  }}
-                />
-                <p>of {noOfPages} pages</p>
-              </div>
-              <PaginationItem>
-                <PaginationNext
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                </Button>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    value={currentPage}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    className="w-8 text-center px-1 h-7"
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (isNaN(value) || value < 1 || value > noOfPages) {
+                        setCurrentPage(1);
+                      } else {
+                        setCurrentPage(value);
+                      }
+                    }}
+                  />
+                  <p>of {noOfPages} pages</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
                       prev === noOfPages ? noOfPages : prev + 1
                     )
                   }
-                />
+                >
+                  <ChevronRight className="w-3 h-3" />{" "}
+                </Button>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-        </CardContent>
-        <CardFooter>
           <div className="text-xs text-muted-foreground">
             {
               <div className="text-xs text-muted-foreground">
