@@ -55,6 +55,10 @@ export const getPatientList = async (queryParams: Record<string, string>) => {
   return api.get(API_END_POINTS.PATIENTS_LIST, { params: queryParams });
 };
 
+export const getPatientDetails = async (id: string) => {
+  return api.get(API_END_POINTS.PATIENT_DETAILS + `/${id}`);
+}
+
 
 export const getDashboardMetrics = async (id: string = "") => {
   return api.get(API_END_POINTS.DASHBOARD_METRICS + `/${id}`);

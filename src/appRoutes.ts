@@ -4,6 +4,7 @@ export const APP_ROUTES = {
   APPOINTMENTS: "/admin/appointments",
   USERS: "/admin/users",
   PATIENTS: "/admin/patients",
+  PATIENT_DETAILS: "/admin/patients/details",
   APPOINTMENT_CONFIRM: "/admin/appointment/confirm",
   LOGIN: "/",
   REGISTER: "/register",

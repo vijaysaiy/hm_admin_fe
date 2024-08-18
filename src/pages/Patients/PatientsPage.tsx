@@ -1,3 +1,4 @@
+import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -27,7 +28,8 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import NoDataFound from "./NoDataFound";
+import { useNavigate } from "react-router-dom";
+import NoDataFound from "../NoDataFound";
 
 const PatientsPage = () => {
   const [noOfPages, setNoOfPages] = useState(15);
@@ -43,6 +45,7 @@ const PatientsPage = () => {
   const endIndex = patientList.length + startIndex - 1;
 
   const handleError = useErrorHandler();
+  const navigate = useNavigate();
 
   const fetchPatientList = async () => {
     try {
@@ -117,7 +120,12 @@ const PatientsPage = () => {
             </TableHeader>
             <TableBody>
               {patientList.map((record) => (
-                <TableRow key={record.id}>
+                <TableRow
+                  key={record.id}
+                  onClick={() =>
+                    navigate(`${APP_ROUTES.PATIENT_DETAILS}/${record.patientId}`)
+                  }
+                >
                   <TableCell>{record.patient.name}</TableCell>
                   <TableCell>{record.patient.phoneNumber}</TableCell>
                   <TableCell className="capitalize">
