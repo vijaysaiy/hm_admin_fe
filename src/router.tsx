@@ -12,7 +12,8 @@ import AppointmentsPage from "./pages/Appointments/AppointmentsPage";
 import DoctorsPage from "./pages/DoctorsPage";
 import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
-import PatientsPage from "./pages/PatientsPage";
+import PatientsPage from "./pages/Patients/PatientsPage";
+import PatientDetails from "./pages/Patients/PatientDetails";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.PATIENTS,
         element: <PatientsPage />,
+      },
+      {
+        path: APP_ROUTES.PATIENT_DETAILS + "/:id",
+        element: <PatientDetails />,
       },
       {
         path: APP_ROUTES.USERS,

@@ -15,9 +15,10 @@ export const API_END_POINTS = {
 
   APPOINTMENT_LIST: "admin/hospital/appointment/list",
   APPOINTMENT_DETAILS: "admin/hospital/appointment/details",
-  APPOINTMENT_UPDATE:"admin/hospital/appointment/update/status",
+  APPOINTMENT_UPDATE: "admin/hospital/appointment/update/status",
 
   PATIENTS_LIST: "admin/hospital/patients/list",
+  PATIENT_DETAILS: "admin/patient/details",
 
   DASHBOARD_METRICS: "admin/dashboard/overview/metrics",
 };
