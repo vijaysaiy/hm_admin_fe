@@ -135,6 +135,10 @@ const Medicines = () => {
     }
   }, [formMode]);
 
+  if (!isFetching && search === "" && medicinesList.length === 0) {
+    return <NoDataFound message="No medicines found" />;
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Card x-chunk="dashboard-06-chunk-0">
@@ -174,196 +178,192 @@ const Medicines = () => {
               </Button>
             </div>
           </div>
-          {medicinesList.length === 0 ? (
-            <NoDataFound message="No Medicines found" />
-          ) : (
-            <>
-              <Table className={isFetching ? "pointer-events-none" : ""}>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Medicine</TableHead>
-                    <TableHead className="hidden md:table-cell">Code</TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Description
-                    </TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Manufacturer
-                    </TableHead>
-                    <TableHead>Expiration Date</TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Dosage Form
-                    </TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Dosage
-                    </TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {medicinesList.map(
-                    (item: ICreateMedicationForm, index: number) => (
-                      <TableRow key={index}>
-                        <TableCell>{item.medicationName}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.code}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.description}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.manufacturer}
-                        </TableCell>
-                        <TableCell>
-                          <p
-                            className={
-                              isBefore(item.expirationDate, new Date())
-                                ? "bg-red-100 text-red-800 py-1 px-2 rounded w-fit"
-                                : ""
-                            }
-                          >
-                            {format(item.expirationDate, "PP")}
-                          </p>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.dosageForm}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.medicationDosage}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="outline"
-                                className="h-8 w-8"
-                              >
-                                <MoreVertical className="h-3.5 w-3.5" />
-                                <span className="sr-only">More</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => handleViewOrEdit(item, "view")}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleViewOrEdit(item, "edit")}
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setDeleteMedicineId(item.id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  )}
-                </TableBody>
-              </Table>
-              <CardFooter className="flex-wrap gap-4 mt-8">
-                <Pagination className="w-fit">
-                  <PaginationContent className="flex-wrap gap-2 items-center">
-                    <PaginationItem className="flex gap-2">
-                      <p className="text-sm">Rows per page:</p>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 gap-1"
-                          >
-                            {rowsPerPage}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setRowsPerPage(5)}>
-                            5
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setRowsPerPage(10)}>
-                            10
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setRowsPerPage(25)}>
-                            25
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setRowsPerPage(50)}>
-                            50
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setRowsPerPage(100)}>
-                            100
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </PaginationItem>
-                    <PaginationItem className="flex gap-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() =>
-                          setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
-                        }
-                      >
-                        <ChevronLeft className="h-3 w-3" />
+
+          <Table className={isFetching ? "pointer-events-none" : ""}>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Medicine</TableHead>
+                <TableHead className="hidden md:table-cell">Code</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Description
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Manufacturer
+                </TableHead>
+                <TableHead>Expiration Date</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Dosage Form
+                </TableHead>
+                <TableHead className="hidden md:table-cell">Dosage</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            {medicinesList.length === 0 ? (
+              <TableBody>
+                <TableCell
+                  colSpan={8}
+                  className="font-medium text-muted-foreground mt-4 text-center "
+                >
+                  No Medicines found...
+                </TableCell>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {medicinesList.map(
+                  (item: ICreateMedicationForm, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.medicationName}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {item.code}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {item.description}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {item.manufacturer}
+                      </TableCell>
+                      <TableCell>
+                        <p
+                          className={
+                            isBefore(item.expirationDate, new Date())
+                              ? "bg-red-100 text-red-800 py-1 px-2 rounded w-fit"
+                              : ""
+                          }
+                        >
+                          {format(item.expirationDate, "PP")}
+                        </p>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {item.dosageForm}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {item.medicationDosage}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8"
+                            >
+                              <MoreVertical className="h-3.5 w-3.5" />
+                              <span className="sr-only">More</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "view")}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleViewOrEdit(item, "edit")}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteMedicineId(item.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            )}
+          </Table>
+          <CardFooter className="flex-wrap gap-4 mt-8">
+            <Pagination className="w-fit">
+              <PaginationContent className="flex-wrap gap-2 items-center">
+                <PaginationItem className="flex gap-2">
+                  <p className="text-sm">Rows per page:</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" className="h-7 gap-1">
+                        {rowsPerPage}
                       </Button>
-                      <div className="flex gap-4 items-center">
-                        <Input
-                          value={currentPage}
-                          type="text"
-                          inputMode="numeric"
-                          pattern="\d*"
-                          className="w-8 text-center px-1 h-7"
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            if (
-                              isNaN(value) ||
-                              value < 1 ||
-                              value > noOfPages
-                            ) {
-                              setCurrentPage(1);
-                            } else {
-                              setCurrentPage(value);
-                            }
-                          }}
-                        />
-                        <p>of {noOfPages} pages</p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() =>
-                          setCurrentPage((prev) =>
-                            prev === noOfPages ? noOfPages : prev + 1
-                          )
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setRowsPerPage(5)}>
+                        5
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setRowsPerPage(10)}>
+                        10
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setRowsPerPage(25)}>
+                        25
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setRowsPerPage(50)}>
+                        50
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setRowsPerPage(100)}>
+                        100
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </PaginationItem>
+                <PaginationItem className="flex gap-2">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() =>
+                      setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
+                    }
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <div className="flex gap-4 items-center">
+                    <Input
+                      value={currentPage}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d*"
+                      className="w-8 text-center px-1 h-7"
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (isNaN(value) || value < 1 || value > noOfPages) {
+                          setCurrentPage(1);
+                        } else {
+                          setCurrentPage(value);
                         }
-                      >
-                        <ChevronRight className="w-3 h-3" />{" "}
-                      </Button>
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                      }}
+                    />
+                    <p>of {noOfPages} pages</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() =>
+                      setCurrentPage((prev) =>
+                        prev === noOfPages ? noOfPages : prev + 1
+                      )
+                    }
+                  >
+                    <ChevronRight className="w-3 h-3" />{" "}
+                  </Button>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+            <div className="text-xs text-muted-foreground">
+              {
                 <div className="text-xs text-muted-foreground">
-                  {
-                    <div className="text-xs text-muted-foreground">
-                      Showing{" "}
-                      <strong>
-                        {startIndex}-{endIndex}
-                      </strong>{" "}
-                      of <strong>{totalRecords}</strong> medicines
-                    </div>
-                  }
+                  Showing{" "}
+                  <strong>
+                    {startIndex}-{endIndex}
+                  </strong>{" "}
+                  of <strong>{totalRecords}</strong> medicines
                 </div>
-              </CardFooter>
-            </>
-          )}
+              }
+            </div>
+          </CardFooter>
         </CardContent>
       </Card>
 

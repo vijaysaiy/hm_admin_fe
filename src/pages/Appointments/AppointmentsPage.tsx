@@ -197,68 +197,88 @@ const AppointmentsPage = () => {
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {appointmentsList?.map((appointment: Appointment) => (
-                <TableRow key={appointment.id}>
-                  <TableCell className="font-medium">
-                    <div className="font-medium">
-                      {appointment.patient.name}
-                    </div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      {appointment.patient.phoneNumber}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{appointment.doctor.name}</div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {`${format(appointment.appointmentDate, "dd-MM-yyyy")}, ${
-                      appointment.doctorSlots.slot.startTime
-                    }`}
-                  </TableCell>
-                  <TableCell className="capitalize">
-                    <p
-                      className={`badge ${
-                        statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
-                    >
-                      {appointment.appointmentStatus.toLowerCase()}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            navigate(
-                              `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                            )
-                          }
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
+            {appointmentsList.length === 0 ? (
+              <TableBody>
+                <TableCell
+                  colSpan={4}
+                  className="font-medium text-muted-foreground mt-4 text-center"
+                >
+                  No Appointments found...
+                </TableCell>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {appointmentsList?.map((appointment: Appointment) => (
+                  <TableRow
+                    key={appointment.id}
+                    onClick={() =>
+                      navigate(
+                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                      )
+                    }
+                  >
+                    <TableCell className="font-medium">
+                      <div className="font-medium">
+                        {appointment.patient.name}
+                      </div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        {appointment.patient.phoneNumber}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">
+                        {appointment.doctor.name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {`${format(appointment.appointmentDate, "dd-MM-yyyy")}, ${
+                        appointment.doctorSlots.slot.startTime
+                      }`}
+                    </TableCell>
+                    <TableCell className="capitalize">
+                      <p
+                        className={`badge ${
+                          statusClasses[appointment.appointmentStatus]
+                        } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
+                      >
+                        {appointment.appointmentStatus.toLowerCase()}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              navigate(
+                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                              )
+                            }
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <X className="mr-2 h-4 w-4" />
-                          Cancel
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <X className="mr-2 h-4 w-4" />
+                            Cancel
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
           </Table>
         </CardContent>
         <CardFooter className="flex-wrap gap-4">

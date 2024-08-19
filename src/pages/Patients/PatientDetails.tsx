@@ -232,9 +232,9 @@ const PatientDetails = () => {
                   </TableRow>
                 </TableHeader>
                 {appointmentList.length === 0 ? (
-                  <p className="font-medium text-muted-foreground mt-4">
+                  <TableCell colSpan={4} className="font-medium text-muted-foreground mt-4 text-center">
                     No Appointments
-                  </p>
+                  </TableCell>
                 ) : (
                   <TableBody>
                     {appointmentList?.map((appointment: Appointment) => (

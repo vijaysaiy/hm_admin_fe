@@ -11,6 +11,12 @@
 pending - dashboard metrics api, user creation, user details api, patient details api
 
 
+19/08/2024
+
+1. redesign the appointment details
+2. click on appointment to navigate to details
+3. no data found should be middle aligned
+
 
 medication dosage form enums
   Tablet

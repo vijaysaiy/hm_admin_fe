@@ -114,21 +114,34 @@ const AppointmentFeedbackPage = () => {
                 <TableCell className="hidden md:table-cell">remarks</TableCell>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {feedbackList.map((record) => (
-                <TableRow key={record.id.toString()}>
-                  <TableCell>{record.appointment.patient.name}</TableCell>
-                  <TableCell>{record.appointment.doctor.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {format(record.appointment.appointmentDate, "PP")}
-                  </TableCell>
-                  <TableCell>{record.overallSatisfaction.toString()}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {record.feedBackRemarks}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            {feedbackList.length === 0 ? (
+              <TableBody>
+                <TableCell
+                  colSpan={5}
+                  className="font-medium text-muted-foreground mt-4 text-center"
+                >
+                  No Feedbacks found...
+                </TableCell>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {feedbackList.map((record) => (
+                  <TableRow key={record.id.toString()}>
+                    <TableCell>{record.appointment.patient.name}</TableCell>
+                    <TableCell>{record.appointment.doctor.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {format(record.appointment.appointmentDate, "PP")}
+                    </TableCell>
+                    <TableCell>
+                      {record.overallSatisfaction.toString()}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {record.feedBackRemarks}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
           </Table>
         </CardContent>
         <CardFooter className="flex-wrap gap-4">
@@ -163,7 +176,8 @@ const AppointmentFeedbackPage = () => {
               </PaginationItem>
               <PaginationItem className="flex gap-2">
                 <Button
-                  variant="outline" size="icon"
+                  variant="outline"
+                  size="icon"
                   onClick={() =>
                     setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
                   }
