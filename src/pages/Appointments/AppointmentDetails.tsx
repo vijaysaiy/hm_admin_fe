@@ -148,6 +148,7 @@ const AppointmentDetails = () => {
   const [completeAppointment, setCompleteAppointment] =
     useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [remarks, setRemarks] = useState<string>("");
 
   const handleError = useErrorHandler();
 
@@ -197,7 +198,7 @@ const AppointmentDetails = () => {
     }
   };
 
-  const handleComplete = async (remarks: string) => {
+  const handleComplete = async () => {
     try {
       setIsSubmitting(true);
       const payload: IAppointmentUpdate = {
@@ -276,30 +277,19 @@ const AppointmentDetails = () => {
     );
   };
   const CompleteAppointmentContent = () => {
-    const [remarks, setRemarks] = useState<string>("");
     return (
       <AlertDialogContent className="max-w-[375px] md:max-w-[475px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Complete Appointment ?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will mark the appointment as complete, please add remarks if
-            there are any.
-          </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="doctorRemarks">Remarks</Label>
-          <Textarea
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-          />
-        </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setCompleteAppointment(false)}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              handleComplete(remarks);
+              handleComplete();
             }}
           >
             Continue
@@ -392,6 +382,14 @@ const AppointmentDetails = () => {
                         {appointmentDetails?.ailment.name}
                       </p>
                     </div>
+                    {appointmentDetails?.remarks && (
+                      <div className="flex justify-between flex-col">
+                        <p className="text-muted-foreground">Remarks: </p>
+                        <p className="font-medium">
+                          {appointmentDetails?.remarks}
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div className="border-t-2 border-solid border-primary/10 my-4" />
                   <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
@@ -400,10 +398,7 @@ const AppointmentDetails = () => {
                       {appointmentDetails?.patientAppointmentDocs.length ===
                         0 && <p className="text-sm">No Records Available</p>}
                       {appointmentDetails?.patientAppointmentDocs.map((doc) => (
-                        <div
-                          key={doc.id as string}
-                          className=""
-                        >
+                        <div key={doc.id as string} className="">
                           <Badge
                             variant={"secondary"}
                             onClick={() =>
@@ -471,14 +466,14 @@ const AppointmentDetails = () => {
                   {appointmentDetails.appointmentStatus !== "CANCELLED" && (
                     <>
                       <div className="border-t-2 border-solid border-primary/10 my-4" />
-                      <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
+                      <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-2">
                         <CardTitle>Prescription </CardTitle>
                         <div className="flex flex-col gap-2 mt-2">
                           {/* add prescription cta */}
                           {appointmentDetails.patientPrescription &&
                             appointmentDetails.patientPrescription.map(
                               (pres) => (
-                                <div className="flex gap-2 mt-4 items-center border p-2 rounded-md  flex-wrap">
+                                <div className="flex gap-2 items-center border p-2 rounded-md  flex-wrap">
                                   <div className="flex justify-between items-center  gap-2">
                                     <p className="font-medium text-sm">
                                       Medicine:
@@ -591,6 +586,21 @@ const AppointmentDetails = () => {
                       </div>
                     </>
                   )}
+                  <div className="border-t-2 border-solid border-primary/10 my-4" />
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="doctorRemarks">Remarks</Label>
+                    {appointmentDetails?.appointmentStatus === "SCHEDULED" ? (
+                      <Textarea
+                        value={remarks}
+                        onChange={(e) => setRemarks(e.target.value)}
+                      />
+                    ) : (
+                      <p className="font-normal">
+                        {appointmentDetails?.doctorRemarks}
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
               {appointmentDetails?.appointmentStatus === "SCHEDULED" && (

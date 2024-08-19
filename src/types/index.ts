@@ -130,6 +130,8 @@ export interface Appointment {
   patientAppointmentDocs: Array<
     Record<string, string | Record<string, string>>
   >;
+  remarks: "";
+  doctorRemarks: "";
 }
 
 // app types

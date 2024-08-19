@@ -15,18 +15,26 @@ import { UserState } from "@/types";
 import {
   Biohazard,
   CalendarPlus2,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   Menu,
+  MessageSquareText,
   Package2,
   PillBottle,
   Stethoscope,
   UserIcon,
   Users,
-  MessageSquareText,
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { toast } from "sonner";
 
 const navItemIconClass = "h-4 w-4";
@@ -81,26 +89,35 @@ const navItems = [
 
 const DashboardLayout = () => {
   const [openSidebar, setOpenSidebar] = useState<boolean>(false);
+  const [collapseSidebar, setCollapseSidebar] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: { user: UserState }) => state.user.user);
-  
+
   if (!user) {
     toast.error("Session expired. Please login again.");
     return <Navigate to={APP_ROUTES.LOGIN} />;
   }
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
+    <div
+      className={`grid min-h-screen w-full ${
+        collapseSidebar ? "md:grid-cols-[80px_1fr]" : "md:grid-cols-[230px_1fr]"
+      }`}
+    >
+      <div
+        className={`hidden border-r bg-muted/40 md:block ${
+          collapseSidebar ? "w-fit" : ""
+        }`}
+      >
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-4">
             <Link to="/" className="flex items-center gap-2 font-semibold">
               <Package2 className="h-6 w-6" />
-              <span className="">HMS Admin</span>
+              {!collapseSidebar && <span className="">HMS Admin</span>}
             </Link>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {navItems.map((item) => (
                 <Link
@@ -113,10 +130,18 @@ const DashboardLayout = () => {
                   }`}
                 >
                   {item.icon}
-                  {item.label}
+                  {!collapseSidebar && item.label}
                 </Link>
               ))}
             </nav>
+            <Button
+              size="icon"
+              variant={"outline"}
+              className="absolute top-1/2 right-[-18px]"
+              onClick={() => setCollapseSidebar((prev) => !prev)}
+            >
+              {collapseSidebar ? <ChevronRight /> : <ChevronLeft />}
+            </Button>
           </div>
         </div>
       </div>
