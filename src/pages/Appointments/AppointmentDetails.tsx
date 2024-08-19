@@ -1,12 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { APP_ROUTES } from "@/appRoutes";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -16,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -153,6 +148,7 @@ const AppointmentDetails = () => {
   const [completeAppointment, setCompleteAppointment] =
     useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [remarks, setRemarks] = useState<string>("");
 
   const handleError = useErrorHandler();
 
@@ -202,7 +198,7 @@ const AppointmentDetails = () => {
     }
   };
 
-  const handleComplete = async (remarks: string) => {
+  const handleComplete = async () => {
     try {
       setIsSubmitting(true);
       const payload: IAppointmentUpdate = {
@@ -281,30 +277,19 @@ const AppointmentDetails = () => {
     );
   };
   const CompleteAppointmentContent = () => {
-    const [remarks, setRemarks] = useState<string>("");
     return (
       <AlertDialogContent className="max-w-[375px] md:max-w-[475px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Complete Appointment ?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will mark the appointment as complete, please add remarks if
-            there are any.
-          </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="doctorRemarks">Remarks</Label>
-          <Textarea
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-          />
-        </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setCompleteAppointment(false)}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              handleComplete(remarks);
+              handleComplete();
             }}
           >
             Continue
@@ -324,79 +309,111 @@ const AppointmentDetails = () => {
       ) : (
         appointmentDetails && (
           <div className="p-8">
-            <Button
-              variant="link"
-              size="sm"
-              className="mb-4"
-              onClick={() => navigate(APP_ROUTES.APPOINTMENTS)}
-            >
-              <ArrowLeft className="h-3.5 w-3.5 mr-2" />
-              Go Back
-            </Button>
-            <div className="flex justify-center md:justify-normal gap-8 flex-wrap">
+            <div className="flex justify-between items-center gap-4">
+              <Button
+                variant="link"
+                size="sm"
+                className="mb-4"
+                onClick={() => navigate(APP_ROUTES.APPOINTMENTS)}
+              >
+                <ArrowLeft className="h-3.5 w-3.5 mr-2" />
+                Go Back
+              </Button>
+              {appointmentDetails?.appointmentStatus === "SCHEDULED" && (
+                <Button
+                  size="sm"
+                  className="w-fit"
+                  variant="ghost"
+                  onClick={() => setCancelAppointment(true)}
+                >
+                  <X className="h-3.5 w-3.5 mr-2" />
+                  Cancel Appointment
+                </Button>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-center md:justify-normal gap-8 flex-wrap">
               {/* patient details and reports */}
               <Card
                 x-chunk="appointment-details-patient-details-chunk"
                 className="h-fit"
               >
-                <CardHeader>
+                <CardHeader className="relative">
                   <CardTitle>Patient Details</CardTitle>
+                  {appointmentDetails?.appointmentStatus && (
+                    <div
+                      className={`badge ${
+                        statusClasses[appointmentDetails?.appointmentStatus]
+                      } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize absolute right-5 top-4`}
+                    >
+                      {appointmentDetails?.appointmentStatus.toLowerCase()}
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="min-w-[300px]">
-                  <div className="flex flex-col justify-between w-full gap-2 mb-2">
-                    <div className="flex justify-between items-center gap-2">
+                  <div className="grid md:grid-flow-col w-full gap-2 mb-2">
+                    <div className="flex flex-col justify-between">
                       <p className="text-muted-foreground">Name: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.patient.name}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Mobile: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.patient.phoneNumber}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Email: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.patient.email}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Blood Group: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.patient.bloodGroup}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Ailment: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.ailment.name}
                       </p>
                     </div>
+                    {appointmentDetails?.remarks && (
+                      <div className="flex justify-between flex-col">
+                        <p className="text-muted-foreground">Remarks: </p>
+                        <p className="font-medium">
+                          {appointmentDetails?.remarks}
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div className="border-t-2 border-solid border-primary/10 my-4" />
                   <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
                     <CardTitle>Patient Reports</CardTitle>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {appointmentDetails?.patientAppointmentDocs.length ===
                         0 && <p className="text-sm">No Records Available</p>}
                       {appointmentDetails?.patientAppointmentDocs.map((doc) => (
-                        <div
-                          key={doc.id as string}
-                          className="flex justify-between items-center"
-                        >
-                          <p className="text-muted-foreground">{`${
-                            (doc.documentTypes as Record<string, string>).name
-                          }.${doc.fileExtension}`}</p>
-                          <a
-                            href={doc.signedUrl as string}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-primary underline"
+                        <div key={doc.id as string} className="">
+                          <Badge
+                            variant={"secondary"}
+                            onClick={() =>
+                              window.open(
+                                doc.signedUrl as string,
+                                "_blank",
+                                "noopener,noreferrer"
+                              )
+                            }
+                            className="cursor-pointer w-fit"
                           >
-                            View
-                          </a>
+                            {`${
+                              (doc.documentTypes as Record<string, string>).name
+                            }.${doc.fileExtension}`}
+                          </Badge>
                         </div>
                       ))}
                     </div>
@@ -410,161 +427,133 @@ const AppointmentDetails = () => {
               >
                 <CardHeader className="relative">
                   <CardTitle>Doctor Details</CardTitle>
-                  {appointmentDetails?.appointmentStatus && (
-                    <div
-                      className={`badge ${
-                        statusClasses[appointmentDetails?.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize absolute right-5 top-4`}
-                    >
-                      {appointmentDetails?.appointmentStatus.toLowerCase()}
-                    </div>
-                  )}
                 </CardHeader>
                 <CardContent className="min-w-[300px]">
-                  <div className="flex flex-col justify-between w-full gap-2 mb-2">
-                    <div className="flex justify-between items-center gap-2">
+                  <div className="grid md:grid-flow-col w-full gap-4 mb-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Name: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.doctor.name}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">Speciality: </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {appointmentDetails?.doctor.speciality}
                       </p>
                     </div>
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between flex-col">
                       <p className="text-muted-foreground">
                         Appointment Date:{" "}
                       </p>
-                      <p className="font-medium self-start">
+                      <p className="font-medium">
                         {format(appointmentDetails?.appointmentDate, "PP")}
+                      </p>
+                    </div>
+                    <div className="flex justify-between flex-col">
+                      <p className="text-muted-foreground">From: </p>
+                      <p className="font-medium">
+                        {appointmentDetails?.doctorSlots.slot.startTime}
+                      </p>
+                    </div>
+                    <div className="flex justify-between flex-col">
+                      <p className="text-muted-foreground">To: </p>
+                      <p className="font-medium">
+                        {appointmentDetails?.doctorSlots.slot.endTime}
                       </p>
                     </div>
                   </div>
                   {appointmentDetails.appointmentStatus !== "CANCELLED" && (
                     <>
                       <div className="border-t-2 border-solid border-primary/10 my-4" />
-                      <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-4">
+                      <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-2">
                         <CardTitle>Prescription </CardTitle>
                         <div className="flex flex-col gap-2 mt-2">
                           {/* add prescription cta */}
                           {appointmentDetails.patientPrescription &&
                             appointmentDetails.patientPrescription.map(
                               (pres) => (
-                                <div className="flex gap-2">
-                                  <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="w-full border rounded-md p-2"
-                                  >
-                                    <AccordionItem
-                                      value={
-                                        pres.medicationStock?.medicationName ??
-                                        ""
-                                      }
-                                      className="border-none"
-                                    >
-                                      <AccordionTrigger className="py-0">
-                                        {pres.medicationStock?.medicationName}
-                                      </AccordionTrigger>
-                                      <AccordionContent>
-                                        <div className="flex flex-col gap-2 mt-4">
-                                          <div className="flex items-center justify-between  gap-2">
-                                            <p className="font-medium text-sm">
-                                              Duration:
-                                            </p>
-                                            <p>{pres.durationInDays} days</p>
-                                          </div>
-                                          <div className="flex items-center justify-between  gap-2">
-                                            <p className="font-medium text-sm">
-                                              Time of the day:
-                                            </p>
-                                            <p className="capitalize">
-                                              {pres.timeOfDay
-                                                .map((i) =>
-                                                  i
-                                                    .toLowerCase()
-                                                    .substring(0, 1)
-                                                )
-                                                .join(", ")}
-                                            </p>
-                                          </div>
-                                          <div className="flex items-center justify-between  gap-2">
-                                            <p className="font-medium text-sm">
-                                              Food Relation:
-                                            </p>
-                                            <p>
-                                              {pres.foodRelation ===
-                                              "BEFORE_MEAL"
-                                                ? "Before Meal"
-                                                : "After Meal"}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </AccordionContent>
-                                    </AccordionItem>
-                                  </Accordion>
+                                <div className="flex gap-2 items-center border p-2 rounded-md  flex-wrap">
+                                  <div className="flex justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Medicine:
+                                    </p>
+                                    <p>
+                                      {pres.medicationStock?.medicationName}
+                                    </p>
+                                  </div>
+                                  <div className="flex justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Duration:
+                                    </p>
+                                    <p>{pres.durationInDays} days</p>
+                                  </div>
+                                  <div className="flex  justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">Time:</p>
+                                    <p className="capitalize">
+                                      {pres.timeOfDay
+                                        .map((i) => i.toLowerCase())
+                                        .join(", ")}
+                                    </p>
+                                  </div>
+                                  <div className="flex  justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Food Relation:
+                                    </p>
+                                    <p>
+                                      {pres.foodRelation === "BEFORE_MEAL"
+                                        ? "Before Meal"
+                                        : "After Meal"}
+                                    </p>
+                                  </div>
                                 </div>
                               )
                             )}
                           {prescription.length !== 0 &&
                             prescription.map((pres) => (
-                              <div className="flex gap-2">
-                                <Accordion
-                                  type="single"
-                                  collapsible
-                                  className="w-full border rounded-md p-2"
-                                >
-                                  <AccordionItem
-                                    value={pres.medicationStockId}
-                                    className="border-none"
-                                  >
-                                    <AccordionTrigger className="py-0">
+                              <div className="flex gap-2 items-center relative">
+                                <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
+                                  <div className="flex justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Medicine:
+                                    </p>
+                                    <p>
                                       {
                                         codeToMedicineMap?.[
                                           pres.medicationStockId
                                         ]
                                       }
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                      <div className="flex flex-col gap-2 mt-4">
-                                        <div className="flex items-center justify-between  gap-2">
-                                          <p className="font-medium text-sm">
-                                            Duration:
-                                          </p>
-                                          <p>{pres.durationInDays} days</p>
-                                        </div>
-                                        <div className="flex items-center justify-between  gap-2">
-                                          <p className="font-medium text-sm">
-                                            Time of the day:
-                                          </p>
-                                          <p className="capitalize">
-                                            {pres.timeOfDay
-                                              .map((i) =>
-                                                i.toLowerCase().substring(0, 1)
-                                              )
-                                              .join(", ")}
-                                          </p>
-                                        </div>
-                                        <div className="flex items-center justify-between  gap-2">
-                                          <p className="font-medium text-sm">
-                                            Food Relation:
-                                          </p>
-                                          <p>
-                                            {pres.foodRelation === "BEFORE_MEAL"
-                                              ? "Before Meal"
-                                              : "After Meal"}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </AccordionContent>
-                                  </AccordionItem>
-                                </Accordion>
+                                    </p>
+                                  </div>
+                                  <div className="flex justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Duration:
+                                    </p>
+                                    <p>{pres.durationInDays} days</p>
+                                  </div>
+                                  <div className="flex  justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">Time:</p>
+                                    <p className="capitalize">
+                                      {pres.timeOfDay
+                                        .map((i) => i.toLowerCase())
+                                        .join(", ")}
+                                    </p>
+                                  </div>
+                                  <div className="flex  justify-between items-center  gap-2">
+                                    <p className="font-medium text-sm">
+                                      Food Relation:
+                                    </p>
+                                    <p>
+                                      {pres.foodRelation === "BEFORE_MEAL"
+                                        ? "Before Meal"
+                                        : "After Meal"}
+                                    </p>
+                                  </div>
+                                </div>
                                 <Button
                                   size="icon"
                                   variant={"outline"}
+                                  className="absolute md:relative top-0 right-0"
                                   onClick={() =>
                                     setPrescription((prev) =>
                                       prev.filter(
@@ -575,7 +564,7 @@ const AppointmentDetails = () => {
                                     )
                                   }
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="min-h-4 min-w-4" />
                                 </Button>
                               </div>
                             ))}
@@ -597,19 +586,25 @@ const AppointmentDetails = () => {
                       </div>
                     </>
                   )}
+                  <div className="border-t-2 border-solid border-primary/10 my-4" />
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="doctorRemarks">Remarks</Label>
+                    {appointmentDetails?.appointmentStatus === "SCHEDULED" ? (
+                      <Textarea
+                        value={remarks}
+                        onChange={(e) => setRemarks(e.target.value)}
+                      />
+                    ) : (
+                      <p className="font-normal">
+                        {appointmentDetails?.doctorRemarks}
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
               {appointmentDetails?.appointmentStatus === "SCHEDULED" && (
-                <div className="flex gap-2 h-fit ">
-                  <Button
-                    size="sm"
-                    className="w-fit"
-                    variant="outline"
-                    onClick={() => setCancelAppointment(true)}
-                  >
-                    <X className="h-3.5 w-3.5 mr-2" />
-                    Cancel Appointment
-                  </Button>
+                <div className="flex gap-2 h-fit w-full justify-end">
                   <Button
                     size="sm"
                     className="w-fit"

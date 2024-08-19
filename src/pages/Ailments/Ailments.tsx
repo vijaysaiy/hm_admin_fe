@@ -132,15 +132,15 @@ const Ailments = () => {
               </Button>
             </div>
 
-            <div
-              className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 ${
-                isFetching ? "pointer-events-none" : ""
-              }`}
-            >
-              {ailments.length === 0 ? (
-                <NoDataFound message="No Ailments found" />
-              ) : (
-                ailments.map((item: Ailment, index: number) => (
+            {ailments.length === 0 ? (
+              <NoDataFound message="No Ailments found" />
+            ) : (
+              <div
+                className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5  ${
+                  isFetching ? "pointer-events-none" : ""
+                }`}
+              >
+                {ailments.map((item: Ailment, index: number) => (
                   <Card key={index} className="flex flex-col">
                     <CardHeader>
                       <div className="flex justify-between items-center gap-2">
@@ -185,9 +185,9 @@ const Ailments = () => {
                       </p>
                     </CardContent>
                   </Card>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
