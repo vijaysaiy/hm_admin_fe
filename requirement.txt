@@ -42,3 +42,35 @@ enum foodRelationEnum {
 }
 
 MORNING, AFTERNOON, EVENING, NIGHT
+
+
+20/08/2024
+
+enum appointmentStatuses {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  APPROVED
+}
+
+model users {
+  name              String
+  email             String         @unique
+  profilePictureUrl String?
+  speciality        String?
+  phoneNumber       String
+  isd_code          String
+  role              roles
+  houseNumber            String?
+  address1               String?
+  address2               String?
+  city                   String?
+  state                  String?
+  pincode                String?
+  country                String?
+}
+
+enum roles {
+  ADMIN
+  DOCTOR
+}
