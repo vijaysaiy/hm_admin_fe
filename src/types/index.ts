@@ -49,7 +49,7 @@ export interface ICreateMedicationForm {
 }
 
 export interface IAppointmentUpdate {
-  status: "COMPLETED" | "CANCELLED";
+  status: "COMPLETED" | "CANCELLED" | "APPROVED";
   appointmentId: string;
   doctorRemarks?: string;
   prescriptions?: IMedcation[];
@@ -109,7 +109,7 @@ interface DoctorSlots {
 export interface Appointment {
   id: string;
   appointmentDate: string;
-  appointmentStatus: string;
+  appointmentStatus: "APPROVED" | "SCHEDULED" | "PENDING" | "COMPLETED";
   patientPrescription?: IMedcation[];
   doctor: {
     id: string;
@@ -307,23 +307,6 @@ export interface IUpdatePrescriptionTakenPayload {
   prescriptionTimeOfDayId: string;
   isPrescriptionTaken: boolean;
 }
-export interface ISignupForm {
-  name: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  isd_code: string;
-  dateOfBirth: string;
-  gender: string;
-  bloodGroup: string;
-  houseNumber?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  state?: string;
-  pincode?: string;
-  country?: string;
-}
 
 export interface MedicationRes {
   isPrescriptionAvailable: boolean;
@@ -386,4 +369,71 @@ export interface IMedicalReport {
   documentTypes: IMedicalReportType;
   signedUrl: string;
   documentTypeName?: string;
+}
+
+export interface ICreateUser {
+  id?: string;
+  name: string;
+  email: string;
+  role: string;
+  profilePictureUrl: string;
+  phoneNumber: string;
+  isd_code: string;
+  houseNumber?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  createdAt?: string;
+}
+export interface IUpdateUser {
+  id?: string;
+  name?: string;
+  email?: string;
+  profilePictureUrl?: string;
+  phoneNumber?: string;
+  isd_code?: string;
+  houseNumber?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+}
+
+export interface ICreateDoctor {
+  id?: string;
+  createdAt?: string;
+  name: string;
+  email: string;
+  role: string;
+  speciality: string;
+  profilePictureUrl: string;
+  phoneNumber: string;
+  isd_code: string;
+  houseNumber?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+}
+
+export interface ISlot {
+  startTime: string;
+  endTime: string;
+  id: string;
+  isSlotSelected: boolean;
+}
+export interface IDoctorSlots {
+  morningSlots: ISlot[];
+  afternoonSlots: ISlot[];
+  eveningSlots: ISlot[];
+  slotDaySettings:{
+    isDoctorAvailableForTheDay: boolean;
+  }
 }

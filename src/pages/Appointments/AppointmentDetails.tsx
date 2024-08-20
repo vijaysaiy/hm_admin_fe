@@ -114,6 +114,8 @@ const PRESCRIPTION_INITIAL_STATE: IMedcation = {
   timeOfDay: [],
 };
 
+const showRemarkaIfStatus = ["SCHEDULED", "APPROVED"];
+
 const AppointmentDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -148,6 +150,7 @@ const AppointmentDetails = () => {
   const [completeAppointment, setCompleteAppointment] =
     useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isApproving, setIsApproving] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
 
   const handleError = useErrorHandler();
@@ -216,6 +219,24 @@ const AppointmentDetails = () => {
       handleError(error, "Failed to update the appointment");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  const handleApprove = async () => {
+    try {
+      setIsApproving(true);
+      const payload: IAppointmentUpdate = {
+        status: "APPROVED",
+        appointmentId: id!,
+      };
+      const res = await updateAppointment(payload);
+      if (res.status === 200) {
+        setCancelAppointment(false);
+        toast.success("Appoinement approved successfully");
+      }
+    } catch (error) {
+      handleError(error, "Failed to approve the appointment");
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -465,155 +486,192 @@ const AppointmentDetails = () => {
                   </div>
                   {appointmentDetails.appointmentStatus !== "CANCELLED" && (
                     <>
-                      <div className="border-t-2 border-solid border-primary/10 my-4" />
-                      <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-2">
-                        <CardTitle>Prescription </CardTitle>
-                        <div className="flex flex-col gap-2 mt-2">
-                          {/* add prescription cta */}
-                          {appointmentDetails.patientPrescription &&
-                            appointmentDetails.patientPrescription.map(
-                              (pres) => (
-                                <div className="flex gap-2 items-center border p-2 rounded-md  flex-wrap">
-                                  <div className="flex justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Medicine:
-                                    </p>
-                                    <p>
-                                      {pres.medicationStock?.medicationName}
-                                    </p>
-                                  </div>
-                                  <div className="flex justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Duration:
-                                    </p>
-                                    <p>{pres.durationInDays} days</p>
-                                  </div>
-                                  <div className="flex  justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">Time:</p>
-                                    <p className="capitalize">
-                                      {pres.timeOfDay
-                                        .map((i) => i.toLowerCase())
-                                        .join(", ")}
-                                    </p>
-                                  </div>
-                                  <div className="flex  justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Food Relation:
-                                    </p>
-                                    <p>
-                                      {pres.foodRelation === "BEFORE_MEAL"
-                                        ? "Before Meal"
-                                        : "After Meal"}
-                                    </p>
-                                  </div>
-                                </div>
-                              )
-                            )}
-                          {prescription.length !== 0 &&
-                            prescription.map((pres) => (
-                              <div className="flex gap-2 items-center relative">
-                                <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
-                                  <div className="flex justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Medicine:
-                                    </p>
-                                    <p>
-                                      {
-                                        codeToMedicineMap?.[
-                                          pres.medicationStockId
-                                        ]
+                      {(appointmentDetails.appointmentStatus === "APPROVED" ||
+                        appointmentDetails.appointmentStatus ===
+                          "COMPLETED") && (
+                        <>
+                          <div className="border-t-2 border-solid border-primary/10 my-4" />
+                          <div className="flex flex-col justify-between w-full gap-2 mb-2 mt-2">
+                            <CardTitle>Prescription </CardTitle>
+                            <div className="flex flex-col gap-2 mt-2">
+                              {/* add prescription cta */}
+                              {appointmentDetails.patientPrescription &&
+                                appointmentDetails.patientPrescription.map(
+                                  (pres) => (
+                                    <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Medicine:
+                                        </p>
+                                        <p>
+                                          {pres.medicationStock?.medicationName}
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Duration:
+                                        </p>
+                                        <p>{pres.durationInDays} days</p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Time:
+                                        </p>
+                                        <p className="capitalize">
+                                          {pres.timeOfDay
+                                            .map((i) => i.toLowerCase())
+                                            .join(", ")}
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Food Relation:
+                                        </p>
+                                        <p>
+                                          {pres.foodRelation === "BEFORE_MEAL"
+                                            ? "Before Meal"
+                                            : "After Meal"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              {prescription.length !== 0 &&
+                                prescription.map((pres) => (
+                                  <div className="flex gap-2 items-center relative">
+                                    <div className="flex gap-2 items-center border p-2 rounded-md flex-wrap">
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Medicine:
+                                        </p>
+                                        <p>
+                                          {
+                                            codeToMedicineMap?.[
+                                              pres.medicationStockId
+                                            ]
+                                          }
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Duration:
+                                        </p>
+                                        <p>{pres.durationInDays} days</p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Time:
+                                        </p>
+                                        <p className="capitalize">
+                                          {pres.timeOfDay
+                                            .map((i) => i.toLowerCase())
+                                            .join(", ")}
+                                        </p>
+                                      </div>
+                                      <div className="flex justify-between items-center gap-2">
+                                        <p className="font-medium text-sm">
+                                          Food Relation:
+                                        </p>
+                                        <p>
+                                          {pres.foodRelation === "BEFORE_MEAL"
+                                            ? "Before Meal"
+                                            : "After Meal"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      size="icon"
+                                      variant={"outline"}
+                                      className="absolute md:relative top-0 right-0"
+                                      onClick={() =>
+                                        setPrescription((prev) =>
+                                          prev.filter(
+                                            (i) =>
+                                              i.medicationStockId !==
+                                              pres.medicationStockId
+                                          )
+                                        )
                                       }
-                                    </p>
+                                    >
+                                      <Trash2 className="min-h-4 min-w-4" />
+                                    </Button>
                                   </div>
-                                  <div className="flex justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Duration:
-                                    </p>
-                                    <p>{pres.durationInDays} days</p>
-                                  </div>
-                                  <div className="flex  justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">Time:</p>
-                                    <p className="capitalize">
-                                      {pres.timeOfDay
-                                        .map((i) => i.toLowerCase())
-                                        .join(", ")}
-                                    </p>
-                                  </div>
-                                  <div className="flex  justify-between items-center  gap-2">
-                                    <p className="font-medium text-sm">
-                                      Food Relation:
-                                    </p>
-                                    <p>
-                                      {pres.foodRelation === "BEFORE_MEAL"
-                                        ? "Before Meal"
-                                        : "After Meal"}
-                                    </p>
-                                  </div>
-                                </div>
+                                ))}
+
+                              {appointmentDetails.appointmentStatus ===
+                                "APPROVED" && (
                                 <Button
-                                  size="icon"
-                                  variant={"outline"}
-                                  className="absolute md:relative top-0 right-0"
-                                  onClick={() =>
-                                    setPrescription((prev) =>
-                                      prev.filter(
-                                        (i) =>
-                                          i.medicationStockId !==
-                                          pres.medicationStockId
-                                      )
-                                    )
-                                  }
+                                  size="sm"
+                                  variant="secondary"
+                                  className="w-fit"
+                                  onClick={() => {
+                                    setShowPrescriptionDialog(true);
+                                  }}
                                 >
-                                  <Trash2 className="min-h-4 min-w-4" />
+                                  <Plus className="h-3.5 w-3.5 mr-2" />
+                                  Add
                                 </Button>
-                              </div>
-                            ))}
-                          {appointmentDetails?.appointmentStatus ===
-                            "SCHEDULED" && (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="w-fit"
-                              onClick={() => {
-                                setShowPrescriptionDialog(true);
-                              }}
-                            >
-                              <Plus className="h-3.5 w-3.5 mr-2" />
-                              Add
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="border-t-2 border-solid border-primary/10 my-4" />
+                        </>
+                      )}
                     </>
                   )}
-                  <div className="border-t-2 border-solid border-primary/10 my-4" />
 
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="doctorRemarks">Remarks</Label>
-                    {appointmentDetails?.appointmentStatus === "SCHEDULED" ? (
+                  {appointmentDetails.appointmentStatus === "APPROVED" && (
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="doctorRemarks">Remarks</Label>
                       <Textarea
                         value={remarks}
                         onChange={(e) => setRemarks(e.target.value)}
                       />
-                    ) : (
+                    </div>
+                  )}
+
+                  {appointmentDetails.appointmentStatus === "COMPLETED" && (
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="doctorRemarks">Remarks</Label>
                       <p className="font-normal">
                         {appointmentDetails?.doctorRemarks}
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               {appointmentDetails?.appointmentStatus === "SCHEDULED" && (
-                <div className="flex gap-2 h-fit w-full justify-end">
-                  <Button
-                    size="sm"
-                    className="w-fit"
-                    onClick={() => setCompleteAppointment(true)}
-                  >
-                    <Check className="h-3.5 w-3.5 mr-2" />
-                    Mark Complete
-                  </Button>
-                </div>
+                <>
+                  <div className="flex gap-2 h-fit w-full justify-end">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-fit"
+                      onClick={() => handleApprove()}
+                    >
+                      {isApproving ? (
+                        <>
+                          <Spinner type="light" />
+                          Approving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-3.5 w-3.5 mr-2" />
+                          Approve
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      className="w-fit"
+                      onClick={() => setCompleteAppointment(true)}
+                    >
+                      <Check className="h-3.5 w-3.5 mr-2" />
+                      Mark Complete
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
           </div>

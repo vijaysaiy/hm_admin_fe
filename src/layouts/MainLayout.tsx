@@ -42,11 +42,16 @@ const navItemIconClass = "h-4 w-4";
 const linkToTitle = {
   [APP_ROUTES.DASHBOARD]: "Dashboard",
   [APP_ROUTES.PATIENTS]: "Patients",
-  [APP_ROUTES.USERS]: "Users",
+  [APP_ROUTES.ADMINS]: "Admins",
+  [APP_ROUTES.CREATE_ADMIN]: "Create Admin",
+  [APP_ROUTES.UPDATE_ADMIN]: "Update Admin",
   [APP_ROUTES.APPOINTMENTS]: "Appointments",
   [APP_ROUTES.MEDICATION]: "Medicines",
   [APP_ROUTES.AILMENTS]: "Ailments",
   [APP_ROUTES.APPOINTMENT_FEEDBACKS]: "Feedbacks",
+  [APP_ROUTES.DOCTORS]: "Doctors",
+  [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
+  [APP_ROUTES.UPDATE_DOCTOR]: "Update Doctor",
 };
 
 const navItems = [
@@ -61,9 +66,9 @@ const navItems = [
     link: APP_ROUTES.PATIENTS,
   },
   {
-    label: "Users",
+    label: "Admins",
     icon: <Stethoscope className={navItemIconClass} />,
-    link: APP_ROUTES.USERS,
+    link: APP_ROUTES.ADMINS,
   },
   {
     label: "Appointments",
@@ -84,6 +89,11 @@ const navItems = [
     label: "Feedbacks",
     icon: <MessageSquareText className={navItemIconClass} />,
     link: APP_ROUTES.APPOINTMENT_FEEDBACKS,
+  },
+  {
+    label: "Doctors",
+    icon: <Stethoscope className={navItemIconClass} />,
+    link: APP_ROUTES.DOCTORS,
   },
 ];
 
