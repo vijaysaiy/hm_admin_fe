@@ -5,16 +5,21 @@ import { APP_ROUTES } from "./appRoutes";
 import AuthLayout from "./layouts/AuthLayout";
 import ErrorBoundary from "./layouts/ErrorBoundary";
 import MainLayout from "./layouts/MainLayout";
+import Admins from "./pages/Admin/Admins";
+import CreateAdmin from "./pages/Admin/CreateAdmin";
+import UpdateAdmin from "./pages/Admin/UpdateAdmin";
 import Ailments from "./pages/Ailments/Ailments";
 import AppointmentFeedback from "./pages/AppointmentFeedbacks";
 import AppointmentDetails from "./pages/Appointments/AppointmentDetails";
 import AppointmentsPage from "./pages/Appointments/AppointmentsPage";
-import DoctorsPage from "./pages/DoctorsPage";
 import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
 import PatientDetails from "./pages/Patients/PatientDetails";
 import PatientsPage from "./pages/Patients/PatientsPage";
 import ProfilePage from "./pages/ProfilePage";
+import Doctors from "./pages/Doctos/Doctors";
+import CreateDoctor from "./pages/Doctos/CreateDoctor";
+import UpdateDoctor from "./pages/Doctos/UpdateDoctor";
 
 const router = createBrowserRouter([
   {
@@ -34,12 +39,32 @@ const router = createBrowserRouter([
         element: <PatientsPage />,
       },
       {
-        path: APP_ROUTES.PATIENT_DETAILS + "/:id",
+        path: APP_ROUTES.PATIENT_DETAILS,
         element: <PatientDetails />,
       },
       {
-        path: APP_ROUTES.USERS,
-        element: <DoctorsPage />,
+        path: APP_ROUTES.ADMINS,
+        element: <Admins />,
+      },
+      {
+        path: APP_ROUTES.CREATE_ADMIN,
+        element: <CreateAdmin />,
+      },
+      {
+        path: APP_ROUTES.UPDATE_ADMIN,
+        element: <UpdateAdmin />,
+      },
+      {
+        path: APP_ROUTES.DOCTORS,
+        element: <Doctors />,
+      },
+      {
+        path: APP_ROUTES.CREATE_DOCTOR,
+        element: <CreateDoctor />,
+      },
+      {
+        path: APP_ROUTES.UPDATE_DOCTOR,
+        element: <UpdateDoctor />,
       },
       {
         path: APP_ROUTES.APPOINTMENTS,
