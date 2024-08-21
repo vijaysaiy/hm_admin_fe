@@ -26,4 +26,7 @@ export const APP_ROUTES = {
   MEDICATION: "/admin/medications",
   AILMENTS: "/admin/ailments",
   APPOINTMENT_FEEDBACKS: "/admin/feedbacks",
+
+  FORGET_PASSWORD: "/forget-password",
+  RESET_PASSWORD: "/reset-password",
 };

@@ -22,39 +22,24 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
-import { getProfileDetails, login } from "@/https/auth-service";
-import { setUser } from "@/state/userReducer";
-import { IloginForm, User, UserState } from "@/types";
-import { replaceNullWithEmptyString } from "@/utils";
+import { IResetPasswordForm, UserState } from "@/types";
 import { AxiosError } from "axios";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const emailOrPhoneSchema = z.string().refine(
-  (value) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/;
-    return emailRegex.test(value) || phoneRegex.test(value);
-  },
-  {
-    message: "Enter valid email address or  phone number",
-  }
-);
-
 const loginSchema = z.object({
-  userName: emailOrPhoneSchema,
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  currentPassword: z.string().min(6, "Password must be at least 6 characters"),
+  newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const LoginForm = () => {
-  const form = useForm<IloginForm>({
+const ResetPassword = () => {
+  const form = useForm<IResetPasswordForm>({
     resolver: zodResolver(loginSchema),
   });
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -65,26 +50,20 @@ const LoginForm = () => {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
   }
 
-  const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
+  const onSubmit: SubmitHandler<IResetPasswordForm> = async (
+    data: IResetPasswordForm
+  ) => {
     try {
       setSubmitting(true);
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const userNameType = emailRegex.test(data.userName)
-        ? "EMAIL"
-        : "PHONE_NUMBER";
-
-      const payload = {
-        ...data,
-        userNameType,
-      };
-      const response = await login(payload);
-      if (response.status === 200) {
-        const detailsRes = await getProfileDetails();
-        const details = detailsRes.data.data;
-        const transformedDetails = replaceNullWithEmptyString(details);
-        dispatch(setUser(transformedDetails as User));
-        navigate(APP_ROUTES.DASHBOARD);
-      }
+      console.log(data);
+      //   const response = await login(data);
+      //   if (response.status === 200) {
+      //     const detailsRes = await getProfileDetails();
+      //     const details = detailsRes.data.data;
+      //     const transformedDetails = replaceNullWithEmptyString(details);
+      //     dispatch(setUser(transformedDetails as User));
+      //     navigate(APP_ROUTES.DASHBOARD);
+      //   }
       toast.success("Logged in successfully");
     } catch (error) {
       if ((error as AxiosError).response?.status === 403) {
@@ -100,21 +79,22 @@ const LoginForm = () => {
     <section className="flex justify-center items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Welcome</CardTitle>
-          <CardDescription>Log in to your account</CardDescription>
+          <CardTitle className="text-2xl">Reset Password</CardTitle>
+          <CardDescription></CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
-                name="userName"
+                name="currentPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email / Mobile</FormLabel>
+                    <FormLabel>Current Password</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="m@example.com / 9898989898"
+                        type="password"
+                        placeholder="************"
                         {...field}
                       />
                     </FormControl>
@@ -124,10 +104,10 @@ const LoginForm = () => {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="newPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>New Password</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -148,14 +128,9 @@ const LoginForm = () => {
                     Please wait...
                   </>
                 ) : (
-                  "Sign in"
+                  "Continue"
                 )}
               </Button>
-              <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
-                <Link to={APP_ROUTES.FORGET_PASSWORD} className="underline m-0 p-0">
-                  Forgot Password?
-                </Link>
-              </div>
             </CardFooter>
           </form>
         </Form>
@@ -164,4 +139,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default ResetPassword;
