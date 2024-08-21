@@ -192,6 +192,15 @@ export interface IloginForm {
   userName: string;
   password: string;
 }
+export interface IForgotPasswordForm {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface IResetPasswordForm {
+  currentPassword: string;
+  newPassword: string;
+}
 export interface ISlot {
   id: string;
   startTime: string;

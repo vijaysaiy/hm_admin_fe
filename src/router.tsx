@@ -20,6 +20,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import PatientDetails from "./pages/Patients/PatientDetails";
 import PatientsPage from "./pages/Patients/PatientsPage";
 import ProfilePage from "./pages/ProfilePage";
+import ForgetPassword from "./pages/PasswordManagement/ForgetPassword";
+import ResetPassword from "./pages/PasswordManagement/ResetPassword";
 
 const router = createBrowserRouter([
   {
@@ -108,6 +110,14 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.LOGIN,
         element: <LoginPage />,
+      },
+      {
+        path: APP_ROUTES.FORGET_PASSWORD,
+        element: <ForgetPassword />,
+      },
+      {
+        path: APP_ROUTES.RESET_PASSWORD,
+        element: <ResetPassword />,
       },
       /* 404 page */
       {
