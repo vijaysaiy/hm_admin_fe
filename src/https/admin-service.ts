@@ -4,6 +4,7 @@ import {
   ICreateDoctor,
   ICreateMedicationForm,
   ICreateUser,
+  IUpdateDoctor,
   IUpdateUser,
   IUpdateUserProfile,
 } from "@/types";
@@ -76,15 +77,18 @@ export const getFeedbackList = async (queryParams: Record<string, string>) => {
 };
 
 export const updateProfile = async (payload: IUpdateUserProfile) => {
-  return api.patch(API_END_POINTS.ADMIN_DETAILS, payload);
+  return api.patch(API_END_POINTS.UPDATE_PROFILE, payload);
 };
 
-export const uploadProfilePicture = async (data: FormData) => {
-  return api.post(API_END_POINTS.UPLOAD_PROFiLE_PICTURE, data);
+export const uploadAdminProfilePicture = async (data: FormData) => {
+  return api.post(API_END_POINTS.ADMIN_PROFILE_PIC, data);
 };
 
 export const getAdminList = async (queryParams: Record<string, string>) => {
   return api.get(API_END_POINTS.ADMIN_LIST, { params: queryParams });
+};
+export const getAdminDetails = async (id: string) => {
+  return api.get(API_END_POINTS.ADMIN_DETAILS + `/${id}`);
 };
 
 export const createAdmin = async (payload: ICreateUser) => {
@@ -103,7 +107,7 @@ export const getDoctorList = async (queryParams: Record<string, string>) => {
   return api.get(API_END_POINTS.DOCTORS_LIST, { params: queryParams });
 };
 
-export const updateDoctor = async (payload: ICreateDoctor, id: string) => {
+export const updateDoctor = async (payload: IUpdateDoctor, id: string) => {
   return api.patch(API_END_POINTS.DOCTOR_UPDATE + `/${id}`, payload);
 };
 
@@ -112,5 +116,13 @@ export const getWeekdaysList = async () => {
 };
 
 export const getDoctorSlots = async (queryParams: Record<string, string>) => {
-  return api.get(API_END_POINTS.DOCTOR_SLOTS,{ params: queryParams });
+  return api.get(API_END_POINTS.DOCTOR_SLOTS, { params: queryParams });
+};
+
+export const getDoctorDetails = async (id: string) => {
+  return api.get(API_END_POINTS.DOCTORS_DETAILS + `/${id}`);
+};
+
+export const uploadDoctorProfilePicture = async (data: FormData) => {
+  return api.post(API_END_POINTS.DOCTOR_PROFILE_PIC, data);
 };

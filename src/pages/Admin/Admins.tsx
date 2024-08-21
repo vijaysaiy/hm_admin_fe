@@ -145,9 +145,7 @@ const Admins = () => {
                   <TableRow
                     key={item.id}
                     onClick={() =>
-                      navigate(APP_ROUTES.UPDATE_ADMIN, {
-                        state: { user: item },
-                      })
+                      navigate(APP_ROUTES.UPDATE_ADMIN + `/${item.id}`)
                     }
                   >
                     <TableCell>{item.name}</TableCell>

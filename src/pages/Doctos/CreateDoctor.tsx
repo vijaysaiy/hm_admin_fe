@@ -5,13 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import useErrorHandler from "@/hooks/useError";
 import {
-  createAdmin,
+  createDoctor,
   getDoctorSlots,
   getWeekdaysList,
-  uploadProfilePicture,
+  uploadDoctorProfilePicture,
 } from "@/https/admin-service";
-import { getAdminDetails as getUserDetails } from "@/https/auth-service";
-import { ICreateUser, IDoctorSlots, ISlot } from "@/types";
+import { ICreateDoctor, IDoctorSlots, ISlot } from "@/types";
 import { ArrowLeft, CloudSun, Loader, Moon, Sun, UserIcon } from "lucide-react";
 import React, { Dispatch, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -30,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { APP_ROUTES } from "@/appRoutes";
 import { PhoneInput } from "@/components/ui/phone-input";
 import Spinner from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -48,17 +48,26 @@ const getIconForPeriod = (period: string) => {
       return null;
   }
 };
+
+interface ISelectedSlot {
+  [selectedWeek: string]: {
+    slots: string[];
+    isDoctorAvailableForTheDay: boolean;
+  };
+}
 interface IRenderSlotProps {
   time: string;
   slots: ISlot[];
-  selectedSlots: string[];
-  setSelectedSlot: Dispatch<React.SetStateAction<string[]>>;
+  selectedSlots: ISelectedSlot | undefined;
+  setSelectedSlot: Dispatch<React.SetStateAction<ISelectedSlot | undefined>>;
+  selectedWeek: string;
 }
 const RenderSlots = ({
   time,
   slots,
   selectedSlots,
   setSelectedSlot,
+  selectedWeek,
 }: IRenderSlotProps) => {
   return (
     <React.Fragment key="morning">
@@ -71,17 +80,30 @@ const RenderSlots = ({
           <div
             key={slot.id}
             className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
-              selectedSlots.includes(slot.id) ? "bg-muted" : "hover:bg-muted"
+              selectedSlots?.[selectedWeek]?.slots?.includes(slot.id)
+                ? "bg-muted"
+                : "hover:bg-muted"
             }`}
-            onClick={() =>
-              setSelectedSlot((prev) =>
-                prev.includes(slot.id)
-                  ? prev.filter((i) => i !== slot.id)
-                  : [...prev, slot.id]
-              )
-            }
+            onClick={() => {
+              setSelectedSlot((prev) => {
+                const currentSlots = prev?.[selectedWeek]?.slots || [];
+                const isSlotSelected = currentSlots.includes(slot.id);
+                const updatedSlots = isSlotSelected
+                  ? currentSlots.filter((item) => item !== slot.id)
+                  : [...currentSlots, slot.id];
+
+                return {
+                  ...prev,
+                  [selectedWeek]: {
+                    slots: updatedSlots,
+                    isDoctorAvailableForTheDay:
+                      prev?.[selectedWeek]?.isDoctorAvailableForTheDay ?? true,
+                  },
+                };
+              });
+            }}
           >
-            {slot.startTime}
+            {`${slot.startTime} - ${slot.endTime}`}{" "}
           </div>
         ))}
       </div>
@@ -92,7 +114,7 @@ const RenderSlots = ({
   );
 };
 const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(3, "Name is required"),
   email: z.string().email("Invalid email"),
   phoneNumber: z
     .string()
@@ -107,6 +129,7 @@ const userSchema = z.object({
   country: z.string().optional(),
   profilePictureUrl: z.string().optional(),
   role: z.string().optional(),
+  speciality: z.string().min(3, "Speciality is required"),
 });
 const CreateDoctor: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -116,14 +139,18 @@ const CreateDoctor: React.FC = () => {
   const [slots, setSlots] = useState<Record<string, IDoctorSlots | boolean>>(
     {}
   );
-  const [selectedSlots, setSelectedSlot] = useState<string[]>([]);
+  const [selectedSlots, setSelectedSlot] = useState<ISelectedSlot | undefined>(
+    undefined
+  );
   const [fetchingSlots, setFetchingSlots] = useState<boolean>(false);
+  const [profilePicture, setProfilePicture] = useState<string>();
 
   const imageRef = useRef<HTMLInputElement>(null);
   const handleError = useErrorHandler();
   const navigate = useNavigate();
+  const tabsRef = useRef<HTMLDivElement>();
 
-  const form = useForm<ICreateUser>({
+  const form = useForm<ICreateDoctor["doctorDetails"]>({
     resolver: zodResolver(userSchema),
   });
 
@@ -145,6 +172,7 @@ const CreateDoctor: React.FC = () => {
       });
 
       setSlots(response.data.data);
+      tabsRef && tabsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       handleError(error, "Failed to fetch slots");
     } finally {
@@ -162,19 +190,34 @@ const CreateDoctor: React.FC = () => {
     }
   }, [selectedWeek]);
 
-  const onSubmit: SubmitHandler<ICreateUser> = async (data) => {
+  const onSubmit: SubmitHandler<ICreateDoctor["doctorDetails"]> = async (
+    data
+  ) => {
     try {
       setSubmitting(true);
-      const payload: ICreateUser = {
-        ...data,
-        phoneNumber: data.phoneNumber.substring(3),
-        isd_code: data.phoneNumber.substring(0, 3),
-        role: "ADMIN",
+      const payload: ICreateDoctor = {
+        doctorDetails: {
+          ...data,
+          phoneNumber: data.phoneNumber.substring(3),
+          isd_code: data.phoneNumber.substring(0, 3),
+          role: "DOCTOR",
+        },
       };
-      const res = await createAdmin(payload);
+      if (selectedSlots && Object.keys(selectedSlots).length !== 0) {
+        payload.slotDetails = Object.keys(selectedSlots).map((key) => {
+          return {
+            weekDaysId: key,
+            isDoctorAvailableForTheDay:
+              selectedSlots[key].isDoctorAvailableForTheDay,
+            selectedSlots: selectedSlots[key].slots,
+          };
+        });
+      }
+      console.log(payload);
+      const res = await createDoctor(payload);
       if (res.status === 200) {
         toast.success("Admin created successfully");
-        navigate(APP_ROUTES.ADMINS);
+        navigate(APP_ROUTES.DOCTORS);
       }
     } catch (error) {
       handleError(error, "Failed to update profile");
@@ -195,13 +238,12 @@ const CreateDoctor: React.FC = () => {
         }
         const formData = new FormData();
         formData.append("file", file);
-        await uploadProfilePicture(formData);
+        const res = await uploadDoctorProfilePicture(formData);
         toast.success("Profile picture uploaded successfully");
-        const detailsRes = await getUserDetails();
-        if (detailsRes.status === 200) {
-          toast.success("Admin created successfully");
-          navigate(APP_ROUTES.ADMINS);
-        }
+        form.setValue("profilePictureUrl", res.data.data.bucketPath, {
+          shouldDirty: true,
+        });
+        setProfilePicture(res.data.data.signedUrl);
       } else {
         throw new Error("No file selected");
       }
@@ -225,7 +267,7 @@ const CreateDoctor: React.FC = () => {
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>Admin Details</CardTitle>
+          <CardTitle>Doctor Details</CardTitle>
         </CardHeader>
         <CardContent>
           {/* First Row */}
@@ -234,7 +276,7 @@ const CreateDoctor: React.FC = () => {
               <div className="flex gap-3 items-center">
                 <Avatar className="w-24 h-24">
                   <AvatarImage
-                    src={form.getValues("profilePictureUrl")}
+                    src={profilePicture ?? form.getValues("profilePictureUrl")}
                     alt="image"
                     className="object-fit aspect-square"
                   />
@@ -291,6 +333,19 @@ const CreateDoctor: React.FC = () => {
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
                       <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="speciality"
+                  render={({ field }) => (
+                    <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
+                      <FormLabel>Speciality</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -421,7 +476,12 @@ const CreateDoctor: React.FC = () => {
               </div>
               <div>
                 <p className="font-semibold text-md mb-4">Time Slots</p>
-                <Tabs value={selectedWeek} onValueChange={setSelectedWeek}>
+                <Tabs
+                  value={selectedWeek}
+                  onValueChange={setSelectedWeek}
+                  className="min-h-[500px]"
+                  orientation="vertical"
+                >
                   <TabsList>
                     {weekDayList.map((item) => (
                       <TabsTrigger key={item.id} value={item.id}>
@@ -437,20 +497,45 @@ const CreateDoctor: React.FC = () => {
                   ) : (
                     <TabsContent value={selectedWeek}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        <div className="flex items-center space-x-2">
+                          <Label htmlFor="doc-availability">
+                            Doctor Availability
+                          </Label>
+                          <Switch
+                            id="doc-availability"
+                            checked={
+                              selectedSlots?.[selectedWeek]
+                                ?.isDoctorAvailableForTheDay ?? true
+                            }
+                            onCheckedChange={(checked) => {
+                              setSelectedSlot((prev) => {
+                                return {
+                                  ...prev,
+                                  [selectedWeek]: {
+                                    slots: prev?.[selectedWeek]?.slots || [],
+                                    isDoctorAvailableForTheDay: checked,
+                                  },
+                                };
+                              });
+                            }}
+                          />
+                        </div>
                         {slots.morningSlots && (
                           <RenderSlots
                             time="Morning"
-                            slots={slots.morningSlots as unknown as ISlot[]}
+                            slots={slots?.morningSlots as unknown as ISlot[]}
                             selectedSlots={selectedSlots}
                             setSelectedSlot={setSelectedSlot}
+                            selectedWeek={selectedWeek}
                           />
                         )}
                         {slots.afternoonSlots && (
                           <RenderSlots
-                            time="Morning"
-                            slots={slots.afternoonSlots as unknown as ISlot[]}
+                            time="Afternoon"
+                            slots={slots?.afternoonSlots as unknown as ISlot[]}
                             selectedSlots={selectedSlots}
                             setSelectedSlot={setSelectedSlot}
+                            selectedWeek={selectedWeek}
                           />
                         )}
                         {slots.eveningSlots && (
@@ -459,6 +544,7 @@ const CreateDoctor: React.FC = () => {
                             slots={slots.eveningSlots as unknown as ISlot[]}
                             selectedSlots={selectedSlots}
                             setSelectedSlot={setSelectedSlot}
+                            selectedWeek={selectedWeek}
                           />
                         )}
                       </div>
@@ -478,7 +564,7 @@ const CreateDoctor: React.FC = () => {
                       Please wait...
                     </>
                   ) : (
-                    "Create Admin"
+                    "Create Doctor"
                   )}
                 </Button>
               </div>

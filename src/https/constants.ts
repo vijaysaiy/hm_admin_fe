@@ -1,17 +1,21 @@
 export const API_END_POINTS = {
   LOGIN: "admin/login",
+  PROFILE_DETAILS: "admin/details",
+  UPDATE_PROFILE:"admin/hospital/user/profile/update",
 
   ADMIN_LIST: "admin/hospital/admin/list",
-  ADMIN_DETAILS: "admin/details",
-  UPLOAD_PROFiLE_PICTURE: "admin/profile/upload",
+  ADMIN_DETAILS: "admin/hospital/admin/details",
+  ADMIN_PROFILE_PIC: "/common/admin/update/profilepicture",
   CREATE_ADMIN: "admin/hospital/admin/create",
   UPDATE_ADMIN: "admin/hospital/admin/update",
 
   DOCTORS_LIST: "admin/hospital/doctor/list",
+  DOCTORS_DETAILS: "admin/hospital/doctor/details",
   DOCTOR_CREATE: "admin/hospital/doctor/create",
   DOCTOR_UPDATE: "admin/hospital/doctor/update",
   WEEKDAY_LIST: "admin/hospital/weekdays/list",
   DOCTOR_SLOTS: "admin/hospital/slots/list",
+  DOCTOR_PROFILE_PIC: "/common/admin/update/profilepicture",
 
   FEEDBACK_LIST: "admin/feedback/list",
 

@@ -66,9 +66,9 @@ const navItems = [
     link: APP_ROUTES.PATIENTS,
   },
   {
-    label: "Admins",
+    label: "Doctors",
     icon: <Stethoscope className={navItemIconClass} />,
-    link: APP_ROUTES.ADMINS,
+    link: APP_ROUTES.DOCTORS,
   },
   {
     label: "Appointments",
@@ -91,9 +91,9 @@ const navItems = [
     link: APP_ROUTES.APPOINTMENT_FEEDBACKS,
   },
   {
-    label: "Doctors",
+    label: "Admins",
     icon: <Stethoscope className={navItemIconClass} />,
-    link: APP_ROUTES.DOCTORS,
+    link: APP_ROUTES.ADMINS,
   },
 ];
 

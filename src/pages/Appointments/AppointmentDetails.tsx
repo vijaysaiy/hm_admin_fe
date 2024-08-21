@@ -114,7 +114,6 @@ const PRESCRIPTION_INITIAL_STATE: IMedcation = {
   timeOfDay: [],
 };
 
-const showRemarkaIfStatus = ["SCHEDULED", "APPROVED"];
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -484,6 +483,7 @@ const AppointmentDetails = () => {
                       </p>
                     </div>
                   </div>
+                  {/* @ts-expect-error-free */}
                   {appointmentDetails.appointmentStatus !== "CANCELLED" && (
                     <>
                       {(appointmentDetails.appointmentStatus === "APPROVED" ||

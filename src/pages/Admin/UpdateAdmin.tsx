@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import useErrorHandler from "@/hooks/useError";
-import { updateAdmin, uploadProfilePicture } from "@/https/admin-service";
-import { getAdminDetails as getUserDetails } from "@/https/auth-service";
+import {
+  getAdminDetails,
+  updateAdmin,
+  uploadAdminProfilePicture,
+} from "@/https/admin-service";
 import { ArrowLeft, Loader, UserIcon } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -28,7 +31,7 @@ import { IUpdateUser } from "@/types";
 import { dirtyValues } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 
 const userSchema = z.object({
@@ -47,23 +50,20 @@ const userSchema = z.object({
   country: z.string().optional(),
   profilePictureUrl: z.string().optional(),
   role: z.string().optional(),
+  signedUrl: z.string().optional(),
 });
 const UpdateAdmin: React.FC = () => {
+  const { id } = useParams();
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [profilePicture, setProfilePicture] = useState<string>();
 
   const imageRef = useRef<HTMLInputElement>(null);
   const handleError = useErrorHandler();
   const navigate = useNavigate();
-  const location = useLocation();
-  const user = location.state.user;
 
   const form = useForm<IUpdateUser>({
     resolver: zodResolver(userSchema),
-    defaultValues: {
-      ...user,
-      phoneNumber: `${user.isd_code}${user.phoneNumber}`,
-    },
   });
 
   const onSubmit: SubmitHandler<IUpdateUser> = async () => {
@@ -79,9 +79,9 @@ const UpdateAdmin: React.FC = () => {
         payload.phoneNumber = payload.phoneNumber.substring(3);
       }
 
-      const res = await updateAdmin(payload, user.id!);
+      const res = await updateAdmin(payload, id!);
       if (res.status === 200) {
-        toast.success("Admin update successfully");
+        toast.success("Admin updated successfully");
         navigate(APP_ROUTES.ADMINS);
       }
     } catch (error) {
@@ -103,13 +103,12 @@ const UpdateAdmin: React.FC = () => {
         }
         const formData = new FormData();
         formData.append("file", file);
-        await uploadProfilePicture(formData);
+        const res = await uploadAdminProfilePicture(formData);
         toast.success("Profile picture uploaded successfully");
-        const detailsRes = await getUserDetails();
-        if (detailsRes.status === 200) {
-          toast.success("Admin created successfully");
-          navigate(APP_ROUTES.ADMINS);
-        }
+        form.setValue("profilePictureUrl", res.data.data.bucketPath, {
+          shouldDirty: true,
+        });
+        setProfilePicture(res.data.data.signedUrl);
       } else {
         throw new Error("No file selected");
       }
@@ -119,6 +118,40 @@ const UpdateAdmin: React.FC = () => {
       setUploadingImage(false);
     }
   };
+
+  const fetchAdminDetails = async () => {
+    try {
+      const res = await getAdminDetails(id!);
+
+      const replaceNullWithEmptyString = (obj: IUpdateUser): IUpdateUser => {
+        return Object.fromEntries(
+          Object.entries(obj as { [s: string]: string }).map(([key, value]) => {
+            if (value === null) {
+              return [key, ""];
+            } else if (typeof value === "object" && value !== null) {
+              return [key, replaceNullWithEmptyString(value)];
+            } else {
+              return [key, value];
+            }
+          })
+        );
+      };
+
+      const details = res.data.data;
+      const transformedDetails = replaceNullWithEmptyString(details);
+
+      form.reset({
+        ...transformedDetails,
+        phoneNumber: `${transformedDetails?.isd_code}${transformedDetails?.phoneNumber}`,
+      });
+    } catch (error) {
+      handleError(error, "Failed to fetch doctor details");
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminDetails();
+  }, []);
 
   return (
     <div className=" p-8 mx-auto w-full">
@@ -142,7 +175,8 @@ const UpdateAdmin: React.FC = () => {
               <div className="flex gap-3 items-center">
                 <Avatar className="w-24 h-24">
                   <AvatarImage
-                    src={form.getValues("profilePictureUrl")}
+                    // @ts-expect-error-free
+                    src={profilePicture ?? form.getValues("signedUrl")}
                     alt="image"
                     className="object-fit aspect-square"
                   />
