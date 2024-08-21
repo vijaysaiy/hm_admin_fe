@@ -152,9 +152,8 @@ const LoginForm = () => {
                 )}
               </Button>
               <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
-                <span>Don&apos;t have an account?</span>
                 <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
-                  Sign up
+                  Forgot Password?
                 </Link>
               </div>
             </CardFooter>
