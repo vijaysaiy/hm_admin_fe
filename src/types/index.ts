@@ -148,7 +148,6 @@ export interface User {
   isd_code: string;
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHERS";
-  profilePictureUrl: string | undefined;
   bloodGroup: string;
   address: {
     houseNumber: string;
@@ -159,6 +158,8 @@ export interface User {
     pincode: string;
   };
   signedUrl: string;
+  profilePictureUrl: string;
+  role: "ADMIN" | "DOCTOR" | "PATIENT";
 }
 export interface Doctor {
   id: string;
@@ -346,6 +347,8 @@ export interface IUpdateUserProfile {
   pincode?: string;
   country?: string;
   phoneNumber?: string;
+  profilePictureUrl?: string;
+  signedUrl?: string;
 }
 
 export interface IMedicalReportType {
@@ -404,23 +407,55 @@ export interface IUpdateUser {
   pincode?: string;
 }
 
+interface ISlotDetails {
+  selectedSlots: string[];
+  weekDaysId: string;
+  isDoctorAvailableForTheDay: boolean;
+  doctorSlodId?: string;
+}
 export interface ICreateDoctor {
-  id?: string;
-  createdAt?: string;
-  name: string;
-  email: string;
-  role: string;
-  speciality: string;
-  profilePictureUrl: string;
-  phoneNumber: string;
-  isd_code: string;
-  houseNumber?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  pincode?: string;
+  doctorDetails: {
+    id?: string;
+    createdAt?: string;
+    name: string;
+    email: string;
+    role: string;
+    speciality: string;
+    profilePictureUrl: string;
+    phoneNumber: string;
+    isd_code: string;
+    houseNumber?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+  };
+  slotDetails?: ISlotDetails[];
+}
+export interface IUpdateDoctor {
+  doctorDetails?: {
+    id?: string;
+    createdAt?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    speciality?: string;
+    profilePictureUrl?: string;
+    phoneNumber?: string;
+    isd_code?: string;
+    houseNumber?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+    signedUrl?: string;
+  };
+  slotDetails?: ISlotDetails[];
+  removedSlotIds?: string[];
 }
 
 export interface ISlot {
@@ -428,12 +463,13 @@ export interface ISlot {
   endTime: string;
   id: string;
   isSlotSelected: boolean;
+  doctorSlotId?: string;
 }
 export interface IDoctorSlots {
   morningSlots: ISlot[];
   afternoonSlots: ISlot[];
   eveningSlots: ISlot[];
-  slotDaySettings:{
+  slotDaySettings: {
     isDoctorAvailableForTheDay: boolean;
-  }
+  };
 }

@@ -41,7 +41,9 @@ const Doctors = () => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
-  const [doctorList, setDoctorList] = useState<ICreateDoctor[]>([]);
+  const [doctorList, setDoctorList] = useState<
+    ICreateDoctor["doctorDetails"][]
+  >([]);
   const startIndex = (currentPage - 1) * rowsPerPage + 1;
   const endIndex = doctorList.length + startIndex - 1;
 
@@ -142,13 +144,11 @@ const Doctors = () => {
               </TableBody>
             ) : (
               <TableBody>
-                {doctorList.map((item: ICreateDoctor) => (
+                {doctorList.map((item) => (
                   <TableRow
                     key={item.id}
                     onClick={() =>
-                      navigate(APP_ROUTES.UPDATE_DOCTOR, {
-                        state: { user: item },
-                      })
+                      navigate(APP_ROUTES.UPDATE_DOCTOR + `/${item.id}`)
                     }
                   >
                     <TableCell>{item.name}</TableCell>

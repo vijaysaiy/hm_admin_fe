@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import useErrorHandler from "@/hooks/useError";
-import { createAdmin, uploadProfilePicture } from "@/https/admin-service";
-import { getAdminDetails as getUserDetails } from "@/https/auth-service";
+import { createAdmin, uploadAdminProfilePicture } from "@/https/admin-service";
 import { ICreateUser } from "@/types";
 import { ArrowLeft, Loader, UserIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
@@ -50,6 +49,7 @@ const userSchema = z.object({
 const CreateAdmin: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [profilePicture, setProfilePicture] = useState<string>();
 
   const imageRef = useRef<HTMLInputElement>(null);
   const handleError = useErrorHandler();
@@ -92,13 +92,12 @@ const CreateAdmin: React.FC = () => {
         }
         const formData = new FormData();
         formData.append("file", file);
-        await uploadProfilePicture(formData);
+        const res = await uploadAdminProfilePicture(formData);
         toast.success("Profile picture uploaded successfully");
-        const detailsRes = await getUserDetails();
-        if (detailsRes.status === 200) {
-          toast.success("Admin created successfully");
-          navigate(APP_ROUTES.ADMINS);
-        }
+        form.setValue("profilePictureUrl", res.data.data.bucketPath, {
+          shouldDirty: true,
+        });
+        setProfilePicture(res.data.data.signedUrl);
       } else {
         throw new Error("No file selected");
       }
@@ -131,7 +130,8 @@ const CreateAdmin: React.FC = () => {
               <div className="flex gap-3 items-center">
                 <Avatar className="w-24 h-24">
                   <AvatarImage
-                    src={form.getValues("profilePictureUrl")}
+                    // @ts-expect-error-free
+                    src={profilePicture ?? form.getValues("signedUrl")}
                     alt="image"
                     className="object-fit aspect-square"
                   />

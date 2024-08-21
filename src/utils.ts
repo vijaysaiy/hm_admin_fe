@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+
+import { IUpdateDoctor } from "./types";
+
 // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
 export function dirtyValues(
   dirtyFields: object | boolean,
@@ -19,9 +22,25 @@ export function dirtyValues(
 }
 
 export const statusClasses: { [key: string]: string } = {
-    SCHEDULED: "bg-blue-100 text-blue-800",
-    PENDING: "bg-yellow-100 text-yellow-800",
-    COMPLETED: "bg-green-100 text-green-800",
-    CANCELLED: "bg-red-100 text-red-800",
-    APPROVED: "bg-purple-100 text-purple-800",
-  };
+  SCHEDULED: "bg-blue-100 text-blue-800",
+  PENDING: "bg-yellow-100 text-yellow-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  APPROVED: "bg-purple-100 text-purple-800",
+};
+
+export const replaceNullWithEmptyString = (
+  obj: IUpdateDoctor["doctorDetails"]
+): IUpdateDoctor["doctorDetails"] => {
+  return Object.fromEntries(
+    Object.entries(obj as { [s: string]: string }).map(([key, value]) => {
+      if (value === null) {
+        return [key, ""];
+      } else if (typeof value === "object" && value !== null) {
+        return [key, replaceNullWithEmptyString(value)];
+      } else {
+        return [key, value];
+      }
+    })
+  );
+};

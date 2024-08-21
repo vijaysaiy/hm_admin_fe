@@ -12,14 +12,14 @@ import Ailments from "./pages/Ailments/Ailments";
 import AppointmentFeedback from "./pages/AppointmentFeedbacks";
 import AppointmentDetails from "./pages/Appointments/AppointmentDetails";
 import AppointmentsPage from "./pages/Appointments/AppointmentsPage";
+import CreateDoctor from "./pages/Doctos/CreateDoctor";
+import Doctors from "./pages/Doctos/Doctors";
+import UpdateDoctor from "./pages/Doctos/UpdateDoctor";
 import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
 import PatientDetails from "./pages/Patients/PatientDetails";
 import PatientsPage from "./pages/Patients/PatientsPage";
 import ProfilePage from "./pages/ProfilePage";
-import Doctors from "./pages/Doctos/Doctors";
-import CreateDoctor from "./pages/Doctos/CreateDoctor";
-import UpdateDoctor from "./pages/Doctos/UpdateDoctor";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +51,7 @@ const router = createBrowserRouter([
         element: <CreateAdmin />,
       },
       {
-        path: APP_ROUTES.UPDATE_ADMIN,
+        path: APP_ROUTES.UPDATE_ADMIN + "/:id",
         element: <UpdateAdmin />,
       },
       {
@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         element: <CreateDoctor />,
       },
       {
-        path: APP_ROUTES.UPDATE_DOCTOR,
+        path: APP_ROUTES.UPDATE_DOCTOR + "/:id",
         element: <UpdateDoctor />,
       },
       {

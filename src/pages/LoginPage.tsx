@@ -22,9 +22,10 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
-import { getAdminDetails, login } from "@/https/auth-service";
+import { getProfileDetails, login } from "@/https/auth-service";
 import { setUser } from "@/state/userReducer";
-import { IloginForm, UserState } from "@/types";
+import { IloginForm, User, UserState } from "@/types";
+import { replaceNullWithEmptyString } from "@/utils";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -78,8 +79,10 @@ const LoginForm = () => {
       };
       const response = await login(payload);
       if (response.status === 200) {
-        const detailsRes = await getAdminDetails();
-        dispatch(setUser(detailsRes.data.data));
+        const detailsRes = await getProfileDetails();
+        const details = detailsRes.data.data;
+        const transformedDetails = replaceNullWithEmptyString(details);
+        dispatch(setUser(transformedDetails as User));
         navigate(APP_ROUTES.DASHBOARD);
       }
       toast.success("Logged in successfully");
