@@ -25,6 +25,8 @@ import {
   Stethoscope,
   UserIcon,
   Users,
+  BetweenHorizontalStart,
+  UserRoundCog,
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -48,6 +50,7 @@ const linkToTitle = {
   [APP_ROUTES.APPOINTMENTS]: "Appointments",
   [APP_ROUTES.MEDICATION]: "Medicines",
   [APP_ROUTES.AILMENTS]: "Ailments",
+  [APP_ROUTES.SLOTS]: "Slots",
   [APP_ROUTES.APPOINTMENT_FEEDBACKS]: "Feedbacks",
   [APP_ROUTES.DOCTORS]: "Doctors",
   [APP_ROUTES.CREATE_DOCTOR]: "Create Doctor",
@@ -86,13 +89,18 @@ const navItems = [
     link: APP_ROUTES.AILMENTS,
   },
   {
+    label: "Slots",
+    icon: <BetweenHorizontalStart className={navItemIconClass} />,
+    link: APP_ROUTES.SLOTS,
+  },
+  {
     label: "Feedbacks",
     icon: <MessageSquareText className={navItemIconClass} />,
     link: APP_ROUTES.APPOINTMENT_FEEDBACKS,
   },
   {
     label: "Admins",
-    icon: <Stethoscope className={navItemIconClass} />,
+    icon: <UserRoundCog className={navItemIconClass} />,
     link: APP_ROUTES.ADMINS,
   },
 ];

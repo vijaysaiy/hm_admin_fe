@@ -7,6 +7,7 @@ import {
   IUpdateDoctor,
   IUpdateUser,
   IUpdateUserProfile,
+  Slots,
 } from "@/types";
 import { api } from "./api";
 import { API_END_POINTS } from "./constants";
@@ -21,7 +22,7 @@ export const createMedicine = async (payload: ICreateMedicationForm) => {
 
 export const updateMedicine = async (
   payload: ICreateMedicationForm,
-  id: string
+  id: string,
 ) => {
   return api.patch(API_END_POINTS.MEDICINE_UPDATE + `/${id}`, payload);
 };
@@ -32,6 +33,18 @@ export const deleteMedicine = async (id: string) => {
 
 export const getAilmentList = async (queryParams?: Record<string, string>) => {
   return api.get(API_END_POINTS.AILMENT_LISt, { params: queryParams });
+};
+
+export const getSlotList = async (queryParams?: Record<string, string>) => {
+  return api.get(API_END_POINTS.SLOT_LIST, { params: queryParams });
+};
+
+export const createSLot = async (payload: Slots) => {
+  return api.post(API_END_POINTS.SLOT_CREATE, payload);
+};
+
+export const deleteSlot = async (id: string) => {
+  return api.delete(API_END_POINTS.SLOT_DELETE + `/${id}`);
 };
 
 export const createAilment = async (payload: Ailment) => {
@@ -47,7 +60,7 @@ export const deleteAilment = async (id: string) => {
 };
 
 export const getAppointmentList = async (
-  queryParams: Record<string, string>
+  queryParams: Record<string, string>,
 ) => {
   return api.get(API_END_POINTS.APPOINTMENT_LIST, { params: queryParams });
 };

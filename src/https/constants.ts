@@ -1,7 +1,7 @@
 export const API_END_POINTS = {
   LOGIN: "admin/login",
   PROFILE_DETAILS: "admin/details",
-  UPDATE_PROFILE:"admin/hospital/user/profile/update",
+  UPDATE_PROFILE: "admin/hospital/user/profile/update",
 
   ADMIN_LIST: "admin/hospital/admin/list",
   ADMIN_DETAILS: "admin/hospital/admin/details",
@@ -37,4 +37,8 @@ export const API_END_POINTS = {
   PATIENT_DETAILS: "admin/patient/details",
 
   DASHBOARD_METRICS: "admin/dashboard/overview/metrics",
+
+  SLOT_LIST: "admin/hospital/slots/admin/list",
+  SLOT_DELETE: "admin/hospital/slots/delete",
+  SLOT_CREATE: "admin/hospital/slots/create/single",
 };

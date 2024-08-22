@@ -75,6 +75,12 @@ export interface Ailment {
   hospitalId?: string;
 }
 
+export interface Slots {
+  id?: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface Patient {
   name: string;
   id: string;

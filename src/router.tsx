@@ -22,6 +22,7 @@ import PatientsPage from "./pages/Patients/PatientsPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgetPassword from "./pages/PasswordManagement/ForgetPassword";
 import ResetPassword from "./pages/PasswordManagement/ResetPassword";
+import Slot from "./pages/Slots/Slot";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.AILMENTS,
         element: <Ailments />,
+      },
+      {
+        path: APP_ROUTES.SLOTS,
+        element: <Slot />,
       },
       {
         path: APP_ROUTES.APPOINTMENT_FEEDBACKS,
