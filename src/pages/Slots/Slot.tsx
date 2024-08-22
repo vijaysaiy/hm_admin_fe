@@ -11,12 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,17 +18,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
+import TimePicker from "@/components/ui/timepicker";
 import useErrorHandler from "@/hooks/useError";
-import { deleteSlot, getSlotList, createSLot } from "@/https/admin-service";
+import { createSLot, deleteSlot, getSlotList } from "@/https/admin-service";
 import { Slots } from "@/types";
-import { Info, MoreVertical, Plus, Trash2 } from "lucide-react";
+import { isEndTimeSmallerThanStart } from "@/utils";
+import { Info, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import NoDataFound from "../NoDataFound";
-import TimePicker from "@/components/ui/timepicker";
-import { Label } from "@/components/ui/label";
-import { isEndTimeSmallerThanStart } from "@/utils";
 
 type mode = "view" | "edit" | "create" | null;
 
@@ -46,8 +40,9 @@ const Slot = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSlotId, setDeleteSlotId] = useState<string | null | undefined>(
-    null,
+    null
   );
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   const handleError = useErrorHandler();
 
@@ -82,15 +77,16 @@ const Slot = () => {
 
   const handleCreateSlot = async () => {
     try {
-      setIsDeleting(true);
+      setSubmitting(true);
       await createSLot(selectedSlot!);
       toast.success("Slot created successfully");
+      setShowCreateSlot(false);
+      setSelectedSlot(null);
       fetchSlotList();
     } catch (error) {
       handleError(error, "Failed to create slot");
     } finally {
-      setIsDeleting(false);
-      setDeleteSlotId(null);
+      setSubmitting(false);
     }
   };
 
@@ -107,24 +103,24 @@ const Slot = () => {
   const isvalidSlotTime = () => {
     if (selectedSlot?.startTime && selectedSlot.endTime) {
       if (selectedSlot.startTime === selectedSlot.endTime) {
-        return (
-          <p className="text-destructive text-sm flex items-center gap-1">
-            <Info className="h-3.5 w-3.5" />
-            Start and end time should not be same
-          </p>
-        );
+        return {
+          message: "Start time and end time should not be same",
+          error: true,
+        };
       }
       if (
         isEndTimeSmallerThanStart(selectedSlot.startTime, selectedSlot.endTime)
       ) {
-        return (
-          <p className="text-destructive text-sm flex items-center gap-1">
-            <Info className="h-3.5 w-3.5" />
-            Start time should be greater than end time
-          </p>
-        );
+        return {
+          message: "End time should be greater than start time",
+          error: true,
+        };
       }
     }
+    return {
+      message: "",
+      error: false,
+    };
   };
 
   return (
@@ -168,29 +164,18 @@ const Slot = () => {
                 {slotList.map((item: Slots, index: number) => (
                   <Card key={index} className="flex flex-col">
                     <CardHeader>
-                      <div className="flex justify-between items-center gap-2">
+                      <div className="flex justify-between items-center gap-2 flex-wrap">
                         <h4 className="text-m">
                           {item.startTime} - {item.endTime}
                         </h4>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => setDeleteSlotId(item.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                          onClick={() => setDeleteSlotId(item.id)}
+                          size="icon"
+                          variant={"outline"}
+                          className="hover:border-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       </div>
                     </CardHeader>
                   </Card>
@@ -227,8 +212,17 @@ const Slot = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <Dialog open={showCreateSlot} onOpenChange={setShowCreateSlot}>
-        <DialogContent className="max-w-[375px] md:max-w-[475px]">
+      <Dialog
+        open={showCreateSlot}
+        onOpenChange={(open) => {
+          setShowCreateSlot(open);
+          setSelectedSlot(null);
+        }}
+      >
+        <DialogContent
+          className="max-w-[375px] md:max-w-[475px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Add Slot</DialogTitle>
             <DialogDescription>Add New Slot</DialogDescription>
@@ -238,8 +232,9 @@ const Slot = () => {
               <Label>Start Time</Label>
               <TimePicker
                 onTimeChange={(time) =>
-                  setSelectedSlot((prev) => ({
-                    endTime: prev?.endTime,
+                  setSelectedSlot((prev: Slots | null) => ({
+                    ...prev,
+                    endTime: prev?.endTime || null,
                     startTime: time,
                   }))
                 }
@@ -249,18 +244,33 @@ const Slot = () => {
               <Label>End Time</Label>
               <TimePicker
                 onTimeChange={(time) =>
-                  setSelectedSlot((prev) => ({
+                  setSelectedSlot((prev: Slots | null) => ({
                     ...prev,
                     endTime: time,
+                    startTime: prev?.startTime || null,
                   }))
                 }
               />
             </div>
           </div>
-          {isvalidSlotTime()}
+          {isvalidSlotTime().error && (
+            <p className="text-destructive text-sm flex items-center gap-1">
+              <Info className="h-3.5 w-3.5" />
+              {isvalidSlotTime().message}
+            </p>
+          )}
           <DialogFooter>
-            <Button disabled={false} onClick={() => handleCreateSlot()}>
+            <Button
+              disabled={
+                isvalidSlotTime().error ||
+                !selectedSlot?.endTime ||
+                !selectedSlot?.startTime ||
+                submitting
+              }
+              onClick={() => handleCreateSlot()}
+            >
               Save
+              {submitting && <Spinner type="light" />}
             </Button>
           </DialogFooter>
         </DialogContent>

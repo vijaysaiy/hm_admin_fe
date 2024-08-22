@@ -1,15 +1,15 @@
-import React, { useRef, useState } from "react";
-import { Button } from "./button";
+import React, { useEffect, useRef, useState } from "react";
 import { Input } from "./input";
 
 interface TimePickerProps {
   onTimeChange: (time: string) => void;
+  value?: string;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
-  const [hour, setHour] = useState<string>("12");
-  const [minute, setMinute] = useState<string>("00");
-  const [period, setPeriod] = useState<string>("AM");
+const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange, value }) => {
+  const [hour, setHour] = useState<string>("");
+  const [minute, setMinute] = useState<string>("");
+  const [period, setPeriod] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const timePickerRef = useRef<HTMLDivElement>(null);
 
@@ -36,16 +36,26 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
       timePickerRef.current &&
       !timePickerRef.current.contains(event.target as Node)
     ) {
-      setIsOpen(false);
+      if (hour !== "" && minute !== "" && period !== "") handleDone();
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [hour, minute, period]);
+
+  useEffect(() => {
+    if (value) {
+      const [time, period] = value.split(" ");
+      const [hour, minute] = time.split(":");
+      setHour(hour);
+      setMinute(minute);
+      setPeriod(period);
+    }
+  }, [value]);
 
   const updateTime = (
     newHour: string,
@@ -66,10 +76,14 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
     <div className="relative" ref={timePickerRef}>
       <Input
         type="text"
-        value={`${hour}:${minute} ${period}`}
+        value={
+          hour && minute && period
+            ? `${hour}:${minute} ${period}`
+            : "Select time"
+        }
         readOnly
         onClick={toggleDropdown}
-        className="p-2 border rounded-md w-32 bg-white shadow-sm cursor-pointer"
+        className="p-2 border rounded-md w-32 bg-white shadow-sm cursor-pointer "
       />
       {isOpen && (
         <div className="absolute z-10 mt-2 flex flex-col space-y-2 bg-white border rounded-md shadow-lg p-2">
@@ -114,9 +128,6 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
               ))}
             </div>
           </div>
-          <Button onClick={handleDone} variant="link">
-            Done
-          </Button>
         </div>
       )}
     </div>

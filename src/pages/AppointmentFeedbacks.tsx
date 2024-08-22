@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -28,6 +29,7 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NoDataFound from "./NoDataFound";
 
 const AppointmentFeedbackPage = () => {
@@ -44,6 +46,7 @@ const AppointmentFeedbackPage = () => {
   const endIndex = feedbackList.length + startIndex - 1;
 
   const handleError = useErrorHandler();
+  const navigate = useNavigate();
 
   const getchFeedbackList = async () => {
     try {
@@ -126,7 +129,12 @@ const AppointmentFeedbackPage = () => {
             ) : (
               <TableBody>
                 {feedbackList.map((record) => (
-                  <TableRow key={record.id.toString()}>
+                  <TableRow
+                    key={record.id.toString()}
+                    onClick={() =>
+                      navigate(APP_ROUTES.APPOINTMENT_DETAILS + `/${record.appointment.id}`)
+                    }
+                  >
                     <TableCell>{record.appointment.patient.name}</TableCell>
                     <TableCell>{record.appointment.doctor.name}</TableCell>
                     <TableCell className="hidden md:table-cell">

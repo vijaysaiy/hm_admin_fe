@@ -81,8 +81,8 @@ const RenderSlots = ({
             key={slot.id}
             className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
               selectedSlots?.[selectedWeek]?.slots?.includes(slot.id)
-                ? "bg-muted"
-                : "hover:bg-muted"
+                ? "bg-gray-200"
+                : "hover:bg-gray-200"
             }`}
             onClick={() => {
               setSelectedSlot((prev) => {
@@ -216,11 +216,11 @@ const CreateDoctor: React.FC = () => {
       console.log(payload);
       const res = await createDoctor(payload);
       if (res.status === 200) {
-        toast.success("Admin created successfully");
+        toast.success("Doctor created successfully");
         navigate(APP_ROUTES.DOCTORS);
       }
     } catch (error) {
-      handleError(error, "Failed to update profile");
+      handleError(error, "Failed to create doctor");
     } finally {
       setSubmitting(false);
     }

@@ -33,19 +33,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const emailOrPhoneSchema = z.string().refine(
-  (value) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/;
-    return emailRegex.test(value) || phoneRegex.test(value);
-  },
-  {
-    message: "Enter valid email address or  phone number",
-  }
-);
-
 const loginSchema = z.object({
-  userName: emailOrPhoneSchema,
+  userName: z.string().email(),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -111,12 +100,9 @@ const LoginForm = () => {
                 name="userName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email / Mobile</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="m@example.com / 9898989898"
-                        {...field}
-                      />
+                      <Input placeholder="m@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -152,7 +138,10 @@ const LoginForm = () => {
                 )}
               </Button>
               <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
-                <Link to={APP_ROUTES.FORGET_PASSWORD} className="underline m-0 p-0">
+                <Link
+                  to={APP_ROUTES.FORGET_PASSWORD}
+                  className="underline m-0 p-0"
+                >
                   Forgot Password?
                 </Link>
               </div>

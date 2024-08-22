@@ -140,8 +140,8 @@ const RenderSlots = ({
             key={slot.id}
             className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
               selectedSlots?.[selectedWeek]?.slots?.includes(slot.id)
-                ? "bg-muted"
-                : "hover:bg-muted"
+                ? "bg-gray-200"
+                : "hover:bg-gray-200"
             }`}
             onClick={() => handleChange(slot)}
           >
@@ -311,7 +311,7 @@ const UpdateDoctor: React.FC = () => {
       }
       const res = await updateDoctor(payload, id!);
       if (res.status === 200) {
-        toast.success("Admin created successfully");
+        toast.success("Doctor created successfully");
         navigate(APP_ROUTES.DOCTORS);
       }
     } catch (error) {
