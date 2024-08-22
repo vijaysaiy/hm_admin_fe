@@ -14,17 +14,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { deleteSlot, getSlotList, createSLot } from "@/https/admin-service";
 import { Slots } from "@/types";
-import { MoreVertical, Plus, Trash2 } from "lucide-react";
+import { Info, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import NoDataFound from "../NoDataFound";
+import TimePicker from "@/components/ui/timepicker";
+import { Label } from "@/components/ui/label";
+import { isEndTimeSmallerThanStart } from "@/utils";
 
 type mode = "view" | "edit" | "create" | null;
 
@@ -40,11 +50,6 @@ const Slot = () => {
   );
 
   const handleError = useErrorHandler();
-
-  const handleViewOrEdit = (slot: Slots, mode: mode) => {
-    setSelectedSlot(slot);
-    setFormMode(mode);
-  };
 
   const fetchSlotList = async () => {
     try {
@@ -75,6 +80,20 @@ const Slot = () => {
     }
   };
 
+  const handleCreateSlot = async () => {
+    try {
+      setIsDeleting(true);
+      await createSLot(selectedSlot!);
+      toast.success("Slot created successfully");
+      fetchSlotList();
+    } catch (error) {
+      handleError(error, "Failed to create slot");
+    } finally {
+      setIsDeleting(false);
+      setDeleteSlotId(null);
+    }
+  };
+
   useEffect(() => {
     formMode === null && fetchSlotList();
   }, [formMode]);
@@ -84,6 +103,29 @@ const Slot = () => {
       setSelectedSlot(null);
     }
   }, [formMode]);
+
+  const isvalidSlotTime = () => {
+    if (selectedSlot?.startTime && selectedSlot.endTime) {
+      if (selectedSlot.startTime === selectedSlot.endTime) {
+        return (
+          <p className="text-destructive text-sm flex items-center gap-1">
+            <Info className="h-3.5 w-3.5" />
+            Start and end time should not be same
+          </p>
+        );
+      }
+      if (
+        isEndTimeSmallerThanStart(selectedSlot.startTime, selectedSlot.endTime)
+      ) {
+        return (
+          <p className="text-destructive text-sm flex items-center gap-1">
+            <Info className="h-3.5 w-3.5" />
+            Start time should be greater than end time
+          </p>
+        );
+      }
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -185,6 +227,44 @@ const Slot = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog open={showCreateSlot} onOpenChange={setShowCreateSlot}>
+        <DialogContent className="max-w-[375px] md:max-w-[475px]">
+          <DialogHeader>
+            <DialogTitle>Add Slot</DialogTitle>
+            <DialogDescription>Add New Slot</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-4">
+            <div>
+              <Label>Start Time</Label>
+              <TimePicker
+                onTimeChange={(time) =>
+                  setSelectedSlot((prev) => ({
+                    endTime: prev?.endTime,
+                    startTime: time,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label>End Time</Label>
+              <TimePicker
+                onTimeChange={(time) =>
+                  setSelectedSlot((prev) => ({
+                    ...prev,
+                    endTime: time,
+                  }))
+                }
+              />
+            </div>
+          </div>
+          {isvalidSlotTime()}
+          <DialogFooter>
+            <Button disabled={false} onClick={() => handleCreateSlot()}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
