@@ -59,6 +59,7 @@ import {
   IAppointmentUpdate,
   ICreateMedicationForm,
   IMedcation,
+  User,
 } from "@/types";
 import { statusClasses } from "@/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
@@ -67,6 +68,7 @@ import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { ArrowLeft, Check, CheckIcon, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -114,6 +116,11 @@ const PRESCRIPTION_INITIAL_STATE: IMedcation = {
   timeOfDay: [],
 };
 
+const showCancelBtn = (status: string) => {
+  if (status === "SCHEDULED") return true;
+  if (status === "CANCELLED") return false;
+  return false;
+};
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -151,6 +158,9 @@ const AppointmentDetails = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isApproving, setIsApproving] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
+  const user = useSelector(
+    (state: { user: { user: User } }) => state.user.user
+  );
 
   const handleError = useErrorHandler();
 
@@ -339,7 +349,7 @@ const AppointmentDetails = () => {
                 <ArrowLeft className="h-3.5 w-3.5 mr-2" />
                 Go Back
               </Button>
-              {appointmentDetails?.appointmentStatus === "SCHEDULED" && (
+              {showCancelBtn(appointmentDetails?.appointmentStatus) && (
                 <Button
                   size="sm"
                   className="w-fit"
@@ -640,39 +650,42 @@ const AppointmentDetails = () => {
                   )}
                 </CardContent>
               </Card>
-              {appointmentDetails?.appointmentStatus === "SCHEDULED" && (
-                <>
-                  <div className="flex gap-2 h-fit w-full justify-end">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-fit"
-                      onClick={() => handleApprove()}
-                    >
-                      {isApproving ? (
-                        <>
-                          <Spinner type="light" />
-                          Approving...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="h-3.5 w-3.5 mr-2" />
-                          Approve
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      className="w-fit"
-                      onClick={() => setCompleteAppointment(true)}
-                    >
-                      <Check className="h-3.5 w-3.5 mr-2" />
-                      Mark Complete
-                    </Button>
-                  </div>
-                </>
-              )}
+              <>
+                <div className="flex gap-2 h-fit w-full justify-end">
+                  {appointmentDetails?.appointmentStatus === "SCHEDULED" &&
+                    user.role === "ADMIN" && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="w-fit"
+                        onClick={() => handleApprove()}
+                      >
+                        {isApproving ? (
+                          <>
+                            <Spinner type="light" />
+                            Approving...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="h-3.5 w-3.5 mr-2" />
+                            Approve
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  {appointmentDetails?.appointmentStatus === "APPROVED" &&
+                    user.role === "DOCTOR" && (
+                      <Button
+                        size="sm"
+                        className="w-fit"
+                        onClick={() => setCompleteAppointment(true)}
+                      >
+                        <Check className="h-3.5 w-3.5 mr-2" />
+                        Mark Complete
+                      </Button>
+                    )}
+                </div>
+              </>
             </div>
           </div>
         )

@@ -77,8 +77,8 @@ export interface Ailment {
 
 export interface Slots {
   id?: string;
-  startTime: string;
-  endTime: string;
+  startTime: string | null;
+  endTime: string | null;
 }
 
 export interface Patient {
