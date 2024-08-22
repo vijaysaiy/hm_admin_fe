@@ -45,6 +45,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NoDataFound from "../NoDataFound";
 
+const showCancelBtn = (status: string) => {
+  if (status === "SCHEDULED") return true;
+  if (status === "CANCELLED") return false;
+  return false;
+};
 type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "";
 
 const statusToText = {
@@ -267,11 +272,15 @@ const AppointmentsPage = () => {
                             View
                           </DropdownMenuItem>
 
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <X className="mr-2 h-4 w-4" />
-                            Cancel
-                          </DropdownMenuItem>
+                          {showCancelBtn(appointment.appointmentStatus) && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>
+                                <X className="mr-2 h-4 w-4" />
+                                Cancel
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
