@@ -46,9 +46,9 @@ import { useNavigate } from "react-router-dom";
 import NoDataFound from "../NoDataFound";
 
 const showCancelBtn = (status: string) => {
-  if (status === "SCHEDULED") return true;
+  if (status === "COMPLETED") return false;
   if (status === "CANCELLED") return false;
-  return false;
+  return true;
 };
 type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "";
 
@@ -218,7 +218,7 @@ const AppointmentsPage = () => {
                     key={appointment.id}
                     onClick={() =>
                       navigate(
-                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
                       )
                     }
                   >
@@ -264,7 +264,7 @@ const AppointmentsPage = () => {
                           <DropdownMenuItem
                             onClick={() =>
                               navigate(
-                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                                `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`,
                               )
                             }
                           >
@@ -353,7 +353,7 @@ const AppointmentsPage = () => {
                   size="icon"
                   onClick={() =>
                     setCurrentPage((prev) =>
-                      prev === noOfPages ? noOfPages : prev + 1
+                      prev === noOfPages ? noOfPages : prev + 1,
                     )
                   }
                 >

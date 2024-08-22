@@ -117,9 +117,9 @@ const PRESCRIPTION_INITIAL_STATE: IMedcation = {
 };
 
 const showCancelBtn = (status: string) => {
-  if (status === "SCHEDULED") return true;
+  if (status === "COMPLETED") return false;
   if (status === "CANCELLED") return false;
-  return false;
+  return true;
 };
 
 const AppointmentDetails = () => {
@@ -137,13 +137,13 @@ const AppointmentDetails = () => {
   const [searchMedicine, setSearchMedicine] = useState<string>("");
   const [fetchingMedicines, setFetchingMedicines] = useState<boolean>(false);
   const [medicinesList, setMedicinesList] = useState<ICreateMedicationForm[]>(
-    []
+    [],
   );
   const [showPrescriptionDialog, setShowPrescriptionDialog] =
     useState<boolean>(false);
   const [prescription, setPrescription] = useState<IMedcation[]>([]);
   const [tempPrescription, setTempPrescription] = useState<IMedcation>(
-    PRESCRIPTION_INITIAL_STATE
+    PRESCRIPTION_INITIAL_STATE,
   );
   const [codeToMedicineMap, setCodeToMedicineMap] =
     useState<Record<string, string>>();
@@ -159,7 +159,7 @@ const AppointmentDetails = () => {
   const [isApproving, setIsApproving] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
   const user = useSelector(
-    (state: { user: { user: User } }) => state.user.user
+    (state: { user: { user: User } }) => state.user.user,
   );
 
   const handleError = useErrorHandler();
@@ -435,7 +435,7 @@ const AppointmentDetails = () => {
                               window.open(
                                 doc.signedUrl as string,
                                 "_blank",
-                                "noopener,noreferrer"
+                                "noopener,noreferrer",
                               )
                             }
                             className="cursor-pointer w-fit"
@@ -544,7 +544,7 @@ const AppointmentDetails = () => {
                                         </p>
                                       </div>
                                     </div>
-                                  )
+                                  ),
                                 )}
                               {prescription.length !== 0 &&
                                 prescription.map((pres) => (
@@ -598,8 +598,8 @@ const AppointmentDetails = () => {
                                           prev.filter(
                                             (i) =>
                                               i.medicationStockId !==
-                                              pres.medicationStockId
-                                          )
+                                              pres.medicationStockId,
+                                          ),
                                         )
                                       }
                                     >
@@ -780,7 +780,7 @@ const AppointmentDetails = () => {
                                   />
                                 )}
                               </CommandItem>
-                            )
+                            ),
                           )}
                         </CommandGroup>
                       </ScrollArea>
@@ -834,7 +834,7 @@ const AppointmentDetails = () => {
                     <DropdownMenuCheckboxItem
                       key={time.value}
                       checked={tempPrescription?.timeOfDay?.includes(
-                        time.value
+                        time.value,
                       )}
                       onCheckedChange={(isChecked: boolean) => {
                         setTempPrescription((prev) => ({
@@ -842,7 +842,7 @@ const AppointmentDetails = () => {
                           timeOfDay: isChecked
                             ? [...prev.timeOfDay, time.value]
                             : prev.timeOfDay.filter(
-                                (val) => val !== time.value
+                                (val) => val !== time.value,
                               ),
                         }));
                       }}
