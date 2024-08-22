@@ -30,4 +30,5 @@ export const APP_ROUTES = {
 
   FORGET_PASSWORD: "/forget-password",
   RESET_PASSWORD: "/reset-password",
+  FIRST_TIME_PASSWORD: "/first-login",
 };

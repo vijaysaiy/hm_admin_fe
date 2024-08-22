@@ -17,11 +17,12 @@ import Doctors from "./pages/Doctos/Doctors";
 import UpdateDoctor from "./pages/Doctos/UpdateDoctor";
 import Medicines from "./pages/Medicines/Medicines";
 import NotFoundPage from "./pages/NotFoundPage";
+import FirstLoginPassword from "./pages/PasswordManagement/FirstLoginPassword/FirstLoginPassword";
+import ForgetPassword from "./pages/PasswordManagement/ForgetPassword/ForgetPassword";
+import ResetPassword from "./pages/PasswordManagement/ForgetPassword/ResetPassword";
 import PatientDetails from "./pages/Patients/PatientDetails";
 import PatientsPage from "./pages/Patients/PatientsPage";
 import ProfilePage from "./pages/ProfilePage";
-import ForgetPassword from "./pages/PasswordManagement/ForgetPassword";
-import ResetPassword from "./pages/PasswordManagement/ResetPassword";
 import Slot from "./pages/Slots/Slot";
 
 const router = createBrowserRouter([
@@ -121,8 +122,12 @@ const router = createBrowserRouter([
         element: <ForgetPassword />,
       },
       {
-        path: APP_ROUTES.RESET_PASSWORD,
+        path: APP_ROUTES.RESET_PASSWORD + "/:token",
         element: <ResetPassword />,
+      },
+      {
+        path: APP_ROUTES.FIRST_TIME_PASSWORD,
+        element: <FirstLoginPassword />,
       },
       /* 404 page */
       {
