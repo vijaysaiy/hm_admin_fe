@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
+import { compareAsc, set, startOfToday } from "date-fns";
 import { IUpdateDoctor } from "./types";
 
 // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
@@ -43,4 +44,47 @@ export const replaceNullWithEmptyString = (
       }
     })
   );
+};
+
+/**
+ * Checks if the end time is smaller than the start time.
+ * @param startTime - Start time in 'HH:MM AM/PM' format.
+ * @param endTime - End time in 'HH:MM AM/PM' format.
+ * @returns True if end time is less than start time, otherwise false.
+ */
+export const isEndTimeSmallerThanStart = (
+  startTime: string,
+  endTime: string
+): boolean => {
+  if (!startTime || !endTime) {
+    return false;
+  }
+
+  // Function to convert time string to Date object
+  const timeStringToDate = (timeString: string): Date => {
+    const [time, period] = timeString.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+
+    let adjustedHours = hours;
+    if (period === "PM" && hours !== 12) {
+      adjustedHours += 12;
+    }
+    if (period === "AM" && hours === 12) {
+      adjustedHours = 0;
+    }
+
+    return set(startOfToday(), {
+      hours: adjustedHours,
+      minutes,
+      seconds: 0,
+      milliseconds: 0,
+    });
+  };
+
+  // Convert time strings to Date objects
+  const startDate = timeStringToDate(startTime);
+  const endDate = timeStringToDate(endTime);
+
+  // Return true if end time is smaller than start time
+  return compareAsc(endDate, startDate) < 0;
 };
