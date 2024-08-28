@@ -72,8 +72,10 @@ import { ArrowLeft, Check, CheckIcon, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import { toast } from "sonner";
 import NoDataFound from "../NoDataFound";
+import PrintPrescription from "./PrintPrescription";
 
 interface TimeOfDayOption {
   value: "MORNING" | "AFTERNOON" | "EVENING" | "NIGHT";
@@ -174,6 +176,7 @@ const AppointmentDetails = () => {
   const [vitals, setVitals] =
     useState<Record<string, string>>(vitalsInitialState);
   const [isSubmittingVitals, setIsSubmittingVitals] = useState<boolean>(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const handleError = useErrorHandler();
 
@@ -338,7 +341,7 @@ const AppointmentDetails = () => {
         };
         const res = await updateAppointment(payload);
         if (res.status === 200) {
-          setCancelAppointment(false);
+          setCompleteAppointment(false);
           toast.success("Appoinement updated successfully");
           fetchAppointmentDetails();
           setPrescription([]);
@@ -371,7 +374,15 @@ const AppointmentDetails = () => {
       </AlertDialogContent>
     );
   };
-  console.log(prescription);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: `PRESCRIPTION_${appointmentDetails?.patient.name}_${format(
+      new Date(),
+      "dd-MMM-yyyy"
+    )}`,
+  });
+
   return (
     <>
       {fetchingDetails ? (
@@ -406,6 +417,20 @@ const AppointmentDetails = () => {
                 Cancel Appointment
               </Button>
             )}
+            {appointmentDetails?.appointmentStatus === "COMPLETED" &&
+              appointmentDetails?.patientPrescription?.length !== 0 && (
+                <>
+                  <Button size="sm" onClick={handlePrint}>
+                    Print Prescription
+                  </Button>
+                  <div style={{ display: "none" }}>
+                    <PrintPrescription
+                      appointmentDetails={appointmentDetails}
+                      ref={printRef}
+                    />
+                  </div>
+                </>
+              )}
           </div>
 
           <div className="flex flex-col justify-center md:justify-normal gap-8 flex-wrap">
